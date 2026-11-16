@@ -4,11 +4,18 @@
 
 ---
 
-## 🤖 Fast Resume Prompt (For AI Agent on Target PC)
+## 🤖 Fast Resume Prompt (Copy & Paste to your AI Agent)
 
-Copy and paste this exact prompt to Antigravity / your AI agent when you open this repo on your other computer:
+Doosre PC par Antigravity ya kisi bhi AI agent ko bas ye copy-paste karein:
 
-> **"README.md aur PROGRESS.md read karo aur mera environment setup kar ke dry-run test chala do."**
+```text
+README.md aur PROGRESS.md read karo aur mera environment setup kar ke dry-run test chala do.
+```
+
+### Complete Detailed Prompt (Optional):
+```text
+Maine is project ko GitHub se clone kiya hai. Root mein maujood README.md aur PROGRESS.md read karo, virtual environment bana kar requirements.txt install karo, .env configure karo, aur ek 2-minute ka Urdu dry-run test video generate kar ke output dikhao.
+```
 
 *(English: "Read README.md and PROGRESS.md, set up the virtual environment, install requirements.txt, ensure .env is ready, and execute a 2-minute Urdu dry-run test video.")*
 
