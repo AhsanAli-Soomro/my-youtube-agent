@@ -1,0 +1,2 @@
+# Completed Topics Log
+# Format: YYYY-MM-DD HH:MM:SS | Topic | Video ID

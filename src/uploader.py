@@ -106,6 +106,7 @@ def upload_video_to_youtube(
             "url": "https://youtu.be/DRY_RUN_VIDEO_ID_12345",
             "title": safe_title,
             "privacy": privacy,
+            "service": None,
         }
 
     # Live YouTube Upload
@@ -181,4 +182,33 @@ def upload_video_to_youtube(
         "url": video_url,
         "title": safe_title,
         "privacy": privacy,
+        "service": youtube,
     }
+
+
+def upload_teaser_short_to_youtube(
+    teaser_video_path: Path,
+    title: str,
+    main_video_url: str,
+    privacy_status: Optional[str] = None,
+    category_id: Optional[str] = None,
+    dry_run: Optional[bool] = None,
+) -> Dict[str, Any]:
+    """Upload vertical 9:16 teaser Short to YouTube with #Shorts tag."""
+    short_title = f"{title[:80]} #Shorts"
+    short_desc = (
+        f"Watch the full investigative documentary here: {main_video_url}\n\n"
+        f"Subscribe for more untold mysteries!\n\n#Shorts #Documentary #Mystery"
+    )
+
+    logger.info(f"Preparing YouTube Short upload: '{short_title}'...")
+    return upload_video_to_youtube(
+        video_path=teaser_video_path,
+        title=short_title,
+        description=short_desc,
+        tags=["Shorts", "YouTubeShorts", "Mystery", "Documentary"],
+        thumbnail_path=None,  # YouTube Shorts auto-generate from frames
+        privacy_status=privacy_status,
+        category_id=category_id,
+        dry_run=dry_run,
+    )

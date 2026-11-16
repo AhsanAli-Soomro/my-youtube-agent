@@ -27,6 +27,10 @@ class Scene(BaseModel):
         ...,
         description="Short key date, location, or highlight phrase (2-5 words) to overlay on screen.",
     )
+    is_hook_clip: bool = Field(
+        default=False,
+        description="Set to true for the 3-4 consecutive scenes (~30-45s total) that contain the most intense mystery hook to repurpose as a vertical teaser Short.",
+    )
 
 
 class DocumentaryScript(BaseModel):
@@ -43,6 +47,22 @@ class DocumentaryScript(BaseModel):
     thumbnail_text: str = Field(
         ...,
         description="Short 2-4 word punchy hook text for thumbnail typography.",
+    )
+    youtube_pinned_comment: str = Field(
+        default="",
+        description="Curiosity-driven, controversial, or engaging question to pin at the top of YouTube comments to maximize engagement.",
+    )
+    facebook_post: str = Field(
+        default="",
+        description="Compelling storytelling post with an intense hook, summary, and call-to-action to watch the full documentary.",
+    )
+    twitter_thread: List[str] = Field(
+        default_factory=list,
+        description="A thread of 3-4 suspenseful tweets breaking down the core anomalies of the mystery.",
+    )
+    telegram_post: str = Field(
+        default="",
+        description="Formatted broadcast update with emojis and bold highlights for Telegram channels.",
     )
     scenes: List[Scene] = Field(
         ...,
@@ -109,14 +129,27 @@ Return a single, strictly valid JSON object matching this exact schema:
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10"],
   "thumbnail_prompt": "Ultra-detailed 16:9 prompt for a dramatic thumbnail background",
   "thumbnail_text": "2-4 WORDS PUNCHY HOOK",
+  "youtube_pinned_comment": "Curiosity question to provoke discussion in comments (e.g. 'Do you believe it was an inside cover-up or a bizarre natural anomaly? Let me know your theory below 👇')",
+  "facebook_post": "Compelling suspenseful hook post for Facebook Page with emojis and call to action to watch the full documentary.",
+  "twitter_thread": [
+    "Tweet 1: Shocking hook introducing the core anomaly of the mystery...",
+    "Tweet 2: Crucial clue, declassified record, or leaked evidence...",
+    "Tweet 3: The unexplained twist that still puzzles investigators...",
+    "Tweet 4: Summary conclusion with cliffhanger..."
+  ],
+  "telegram_post": "Formatted announcement with bold title, mystery summary bullet points, and CTA for Telegram broadcast channel.",
   "scenes": [
     {{
       "narration": "Narration text for this 5-8s clip in the target language script",
       "image_prompt": "Cinematic 16:9 visual prompt in English",
-      "on_screen_text": "Date / Location / Key Phrase (2-4 words)"
+      "on_screen_text": "Date / Location / Key Phrase (2-4 words)",
+      "is_hook_clip": true
     }}
   ]
 }}
+
+CRITICAL HOOK CLIP INSTRUCTION:
+Mark exactly 3 to 4 consecutive scenes (totaling ~30-45 seconds) with `"is_hook_clip": true` (usually scenes 1-4 or the peak climax scenes). All other scenes must have `"is_hook_clip": false`. These marked scenes will be automatically cropped and rendered as a 9:16 vertical teaser Short!
 
 Do NOT include any commentary, Markdown backticks, or text outside the JSON object.
 """

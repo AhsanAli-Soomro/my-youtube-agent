@@ -1,0 +1,120 @@
+name: Automated YouTube Documentary & Multi-Platform Marketing Pipeline
+
+on:
+  # Manual trigger with custom parameters
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Documentary Topic (leave blank to read next unused topic from topics.txt)'
+        required: false
+        default: ''
+        type: string
+      duration_minutes:
+        description: 'Target Video Duration in Minutes'
+        required: true
+        default: '2'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - '5'
+      language:
+        description: 'Narration Language'
+        required: true
+        default: 'urdu'
+        type: choice
+        options:
+          - 'urdu'
+          - 'hindi'
+          - 'english'
+      dry_run:
+        description: 'Dry Run Mode (simulate video generation & marketing without live uploading/posting)'
+        required: true
+        default: true
+        type: boolean
+
+  # Automated scheduled trigger (Daily at 14:00 UTC)
+  schedule:
+    - cron: '0 14 * * *'
+
+jobs:
+  generate-and-publish:
+    name: Generate Video, Teaser Short & Market
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 🎥 Install FFmpeg & Open Fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-freefont-ttf
+          ffmpeg -version | head -n 2
+
+      - name: 📦 Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🎬 Run Documentary & Multi-Platform Marketing Agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          VOICE_NAME: ${{ vars.VOICE_NAME || (github.event.inputs.language == 'hindi' && 'hi-IN-MadhurNeural' || (github.event.inputs.language == 'english' && 'en-US-ChristopherNeural' || 'ur-PK-AsadNeural')) }}
+          VOICE_RATE: ${{ vars.VOICE_RATE || '-5%' }}
+          VOICE_PITCH: ${{ vars.VOICE_PITCH || '-2Hz' }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_PRIVACY_STATUS: ${{ vars.YOUTUBE_PRIVACY_STATUS || 'private' }}
+          YOUTUBE_CATEGORY_ID: ${{ vars.YOUTUBE_CATEGORY_ID || '27' }}
+          UPLOAD_TEASER_SHORT: ${{ vars.UPLOAD_TEASER_SHORT || 'true' }}
+          # Social Marketing Keys (Optional)
+          ENABLE_YOUTUBE_COMMENT: ${{ vars.ENABLE_YOUTUBE_COMMENT || 'true' }}
+          FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          TOPIC_FLAG=""
+          if [ -n "${{ github.event.inputs.topic }}" ]; then
+            TOPIC_FLAG="--topic \"${{ github.event.inputs.topic }}\""
+          fi
+          
+          DURATION="${{ github.event.inputs.duration_minutes || '2' }}"
+          LANG="${{ github.event.inputs.language || 'urdu' }}"
+          
+          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
+            RUN_MODE="--live"
+          else
+            RUN_MODE="--dry-run"
+          fi
+          
+          echo "Executing pipeline (Duration: $DURATION min | Lang: $LANG | Mode: $RUN_MODE)"
+          python main.py $TOPIC_FLAG --duration "$DURATION" --lang "$LANG" $RUN_MODE
+
+      - name: 💾 Upload Artifacts (Videos, Thumbnails, Marketing Preview)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: documentary-campaign-${{ github.run_id }}
+          path: |
+            output/**/main_video.mp4
+            output/**/teaser_short.mp4
+            output/**/thumbnail.jpg
+            output/**/metadata.json
+            output/**/marketing_preview.json
+          retention-days: 14

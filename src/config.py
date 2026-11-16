@@ -128,6 +128,27 @@ class Config:
     YOUTUBE_REFRESH_TOKEN: str = os.getenv("YOUTUBE_REFRESH_TOKEN", "").strip()
     YOUTUBE_PRIVACY_STATUS: str = os.getenv("YOUTUBE_PRIVACY_STATUS", "private").strip().lower()
     YOUTUBE_CATEGORY_ID: str = os.getenv("YOUTUBE_CATEGORY_ID", "27").strip()
+    UPLOAD_TEASER_SHORT: bool = os.getenv("UPLOAD_TEASER_SHORT", "true").strip().lower() in ("true", "1", "yes")
+
+    # Multi-Platform Marketing & Distribution
+    ENABLE_YOUTUBE_COMMENT: bool = os.getenv("ENABLE_YOUTUBE_COMMENT", "true").strip().lower() in ("true", "1", "yes")
+
+    # Facebook Page Graph API
+    FACEBOOK_PAGE_ID: str = os.getenv("FACEBOOK_PAGE_ID", "").strip()
+    FACEBOOK_PAGE_ACCESS_TOKEN: str = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "").strip()
+    ENABLE_FACEBOOK_POST: bool = os.getenv("ENABLE_FACEBOOK_POST", "true").strip().lower() in ("true", "1", "yes")
+
+    # X (Twitter) API v2 (Free Tier OAuth 1.0a User Context)
+    TWITTER_API_KEY: str = os.getenv("TWITTER_API_KEY", "").strip()
+    TWITTER_API_SECRET: str = os.getenv("TWITTER_API_SECRET", "").strip()
+    TWITTER_ACCESS_TOKEN: str = os.getenv("TWITTER_ACCESS_TOKEN", "").strip()
+    TWITTER_ACCESS_SECRET: str = os.getenv("TWITTER_ACCESS_SECRET", "").strip()
+    ENABLE_TWITTER_THREAD: bool = os.getenv("ENABLE_TWITTER_THREAD", "true").strip().lower() in ("true", "1", "yes")
+
+    # Telegram Channel Broadcast (Bot API)
+    TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+    ENABLE_TELEGRAM_BROADCAST: bool = os.getenv("ENABLE_TELEGRAM_BROADCAST", "true").strip().lower() in ("true", "1", "yes")
 
     # Operational Flags
     DRY_RUN: bool = os.getenv("DRY_RUN", "true").strip().lower() in ("true", "1", "yes")
