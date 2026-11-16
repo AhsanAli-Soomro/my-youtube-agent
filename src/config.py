@@ -6,7 +6,7 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -17,6 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ASSETS_DIR = BASE_DIR / "assets"
 FONTS_DIR = ASSETS_DIR / "fonts"
 OUTPUT_DIR = BASE_DIR / "output"
+DATA_DIR = BASE_DIR / "data"
 
 
 def _find_binary(name: str, env_var: Optional[str] = None) -> Optional[str]:
@@ -149,6 +150,16 @@ class Config:
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
     TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "").strip()
     ENABLE_TELEGRAM_BROADCAST: bool = os.getenv("ENABLE_TELEGRAM_BROADCAST", "true").strip().lower() in ("true", "1", "yes")
+
+    # Module A: Real-Time Trend Hijacking Settings
+    TREND_COUNTRY_CODES: List[str] = [c.strip().upper() for c in os.getenv("TREND_COUNTRY_CODES", "US,PK,IN,GB").split(",") if c.strip()]
+    TREND_MAX_TOPICS: int = int(os.getenv("TREND_MAX_TOPICS", "3"))
+
+    # Module B: Automated A/B Title & Thumbnail Optimizer Settings
+    AB_TEST_MIN_AGE_HOURS: float = float(os.getenv("AB_TEST_MIN_AGE_HOURS", "6.0"))
+    AB_TEST_MAX_AGE_HOURS: float = float(os.getenv("AB_TEST_MAX_AGE_HOURS", "72.0"))
+    AB_TEST_MIN_CTR_PERCENT: float = float(os.getenv("AB_TEST_MIN_CTR_PERCENT", "5.0"))
+    AB_TEST_MIN_VIEWS_VELOCITY: float = float(os.getenv("AB_TEST_MIN_VIEWS_VELOCITY", "10.0"))
 
     # Operational Flags
     DRY_RUN: bool = os.getenv("DRY_RUN", "true").strip().lower() in ("true", "1", "yes")

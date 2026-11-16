@@ -1,0 +1,24 @@
+{
+  "name": "youtube-documentary-agent",
+  "version": "1.0.0",
+  "description": "Automated YouTube Documentary Creator, Uploader & Multi-Platform Marketing Agent",
+  "main": "main.py",
+  "scripts": {
+    "start": "python main.py",
+    "dry-run": "python main.py --dry-run",
+    "hunt-trends": "python hunt_trends.py",
+    "optimize-ab": "python optimize_ab.py",
+    "get-token": "python get_youtube_token.py"
+  },
+  "keywords": [
+    "youtube",
+    "automation",
+    "ai",
+    "gemini",
+    "documentary",
+    "edge-tts",
+    "marketing"
+  ],
+  "author": "Ahsan Ali Soomro",
+  "license": "MIT"
+}

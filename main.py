@@ -33,6 +33,8 @@ from src.thumbnail_generator import create_documentary_thumbnail
 from src.video_editor import render_full_documentary_video, render_teaser_short
 from src.uploader import upload_video_to_youtube, upload_teaser_short_to_youtube
 from src.marketing import run_marketing_campaign
+from src.trend_hunter import run_trend_hunter
+from src.ab_optimizer import register_published_video, optimize_all_published_videos
 
 
 def print_banner():
@@ -160,22 +162,52 @@ def run_pipeline(
     print(f"✅ Downloaded {len(image_results)} scene visuals + 1 thumbnail background.")
 
     # =========================================================================
-    # STEP 4: Automated Thumbnail Generation (Pillow)
+    # STEP 4: Automated Thumbnail Generation (Pillow - 3 A/B Variants)
     # =========================================================================
     print("\n" + "=" * 65)
-    print("🖼️  STEP 4: Rendering High-CTR Thumbnail...")
+    print("🖼️  STEP 4: Rendering High-CTR Thumbnail & 3 A/B Variants...")
     print("=" * 65)
 
     final_thumb_path = project_dir / "thumbnail.jpg"
+    thumb_a_path = project_dir / "thumbnail_a.jpg"
+    thumb_b_path = project_dir / "thumbnail_b.jpg"
+    thumb_c_path = project_dir / "thumbnail_c.jpg"
+
+    text_a = script.variant_a.thumbnail_text if script.variant_a else script.thumbnail_text
+    text_b = script.variant_b.thumbnail_text if script.variant_b else "THE SECRET"
+    text_c = script.variant_c.thumbnail_text if script.variant_c else "FORBIDDEN"
+
     create_documentary_thumbnail(
         raw_image_path=raw_thumb_path,
         output_path=final_thumb_path,
-        hook_text=script.thumbnail_text,
+        hook_text=text_a,
         font_path=Config.FONT_PATH,
         width=1280,
         height=720,
     )
-    print(f"✅ Thumbnail created: {final_thumb_path.name}")
+    import shutil
+    shutil.copyfile(final_thumb_path, thumb_a_path)
+
+    create_documentary_thumbnail(
+        raw_image_path=raw_thumb_path,
+        output_path=thumb_b_path,
+        hook_text=text_b,
+        font_path=Config.FONT_PATH,
+        width=1280,
+        height=720,
+    )
+
+    create_documentary_thumbnail(
+        raw_image_path=raw_thumb_path,
+        output_path=thumb_c_path,
+        hook_text=text_c,
+        font_path=Config.FONT_PATH,
+        width=1280,
+        height=720,
+    )
+    print(f"✅ Active Thumbnail:    {final_thumb_path.name} ('{text_a}')")
+    print(f"✅ Variant B Thumbnail: {thumb_b_path.name} ('{text_b}')")
+    print(f"✅ Variant C Thumbnail: {thumb_c_path.name} ('{text_c}')")
 
     # =========================================================================
     # STEP 5: Dual Video Rendering (Long-Form 16:9 + Vertical 9:16 Short)
@@ -269,6 +301,14 @@ def run_pipeline(
 
     published_video_id = upload_result.get("video_id", "DRY_RUN_ID")
     published_video_url = upload_result.get("url", "https://youtu.be/DRY_RUN_ID")
+
+    # Register video and its 3 A/B test variants in data/published_videos.json
+    register_published_video(
+        video_id=published_video_id,
+        project_dir=project_dir,
+        script=script,
+        dry_run=dry_run,
+    )
 
     # =========================================================================
     # STEP 7: Auto-Marketing & Multi-Platform Social Distribution
@@ -374,12 +414,31 @@ def parse_arguments():
         action="store_true",
         help="Skip social media distribution",
     )
+    parser.add_argument(
+        "--hunt-trends",
+        action="store_true",
+        help="Run Module A: Fetch real-time Google/Reddit trends, filter with Gemini, and prepend to topics.txt",
+    )
+    parser.add_argument(
+        "--optimize-ab",
+        action="store_true",
+        help="Run Module B: Check 6-72hr old videos and swap underperforming titles/thumbnails to untested A/B variants",
+    )
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_arguments()
+
+    if args.hunt_trends:
+        run_trend_hunter()
+        sys.exit(0)
+
+    if args.optimize_ab:
+        optimize_all_published_videos(dry_run=args.dry_run)
+        sys.exit(0)
+
     custom_out = Path(args.output_dir) if args.output_dir else None
 
     run_pipeline(

@@ -12,7 +12,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube.force-ssl",
+    "https://www.googleapis.com/auth/yt-analytics.readonly",
+]
 
 
 def get_token():
@@ -22,7 +26,7 @@ def get_token():
     print("This script will help you generate your permanent YOUTUBE_REFRESH_TOKEN.")
     print("Prerequisites:")
     print(" 1. Go to Google Cloud Console (https://console.cloud.google.com/)")
-    print(" 2. Enable 'YouTube Data API v3'")
+    print(" 2. Enable 'YouTube Data API v3' and 'YouTube Analytics API'")
     print(" 3. Go to 'Credentials' -> 'Create Credentials' -> 'OAuth client ID'")
     print(" 4. Choose Application Type: 'Desktop app' (or 'Web application')")
     print(" 5. Copy your Client ID and Client Secret.")

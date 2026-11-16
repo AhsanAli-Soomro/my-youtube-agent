@@ -17,31 +17,28 @@ README.md aur PROGRESS.md read karo aur mera environment setup kar ke dry-run te
 Maine is project ko GitHub se clone kiya hai. Root mein maujood README.md aur PROGRESS.md read karo, virtual environment bana kar requirements.txt install karo, .env configure karo, aur ek 2-minute ka Urdu dry-run test video generate kar ke output dikhao.
 ```
 
-*(English: "Read README.md and PROGRESS.md, set up the virtual environment, install requirements.txt, ensure .env is ready, and execute a 2-minute Urdu dry-run test video.")*
-
 ---
 
 ## 1. 🎯 Project Overview
 
-We have built an enterprise-grade, **100% Free, End-to-End Automated Documentary YouTube Creator, Uploader & Multi-Platform Marketing Agent** in **Python**.
+We have built an enterprise-grade, **100% Free, End-to-End Automated Documentary YouTube Creator, Uploader, Trend Hijacker & A/B Optimizer** in **Python**.
 
-Given a topic prompt (or automatically taking the next unused topic from `topics.txt`), the agent:
-1. Researches and writes a suspenseful investigative documentary script in authentic **Urdu script**, **Hindi Devanagari**, or **English** (*Info with Ahsan* / *Vox* / *MagnatesMedia* style).
-2. Generates complete social marketing copy: YouTube pinned comment question, Facebook storytelling post, X (Twitter) mystery thread, and Telegram broadcast caption.
-3. Synthesizes deep voiceover clips via Microsoft `edge-tts` (`ur-PK-AsadNeural` with `-5%` rate and `-2Hz` pitch).
-4. Generates 1080p photorealistic dark cinematic illustrations via Pollinations.ai (zero API keys).
-5. **Dual Video Rendering (FFmpeg):**
-   - **Main 16:9 Long-Form Video (`main_video.mp4`):** Dynamic Ken Burns slow zoom + lower-third subtitle overlay with alpha fading + 12% ambient audio looping.
-   - **Vertical 9:16 Teaser Short (`teaser_short.mp4`):** Takes high-intensity hook scenes, crops to 9:16 with blurred background and top/bottom CTA banner (*"WATCH FULL DOCUMENTARY ON CHANNEL 👇"*).
-6. **Automated Thumbnail (Pillow):** 16:9 radial vignette, multi-pass drop shadow, thick black contrast stroke, and high-CTR typography.
-7. **YouTube Auto-Uploader (YouTube Data API v3):** Uploads `main_video.mp4` with thumbnail and tags, uploads `teaser_short.mp4` as a YouTube Short, and returns published video URLs.
+### Complete System Pipeline:
+1. **Module A (Trend Hunter):** Real-time RSS & Reddit scraper that filters breaking mysteries/anomalies via Gemini and prepends them to `topics.txt`.
+2. **Script & Scene Director (Gemini 2.5 Flash):** Researches and writes a suspenseful investigative documentary script in authentic Urdu script, Devanagari Hindi, or English, generating 3 pre-computed A/B test title/thumbnail variants (`variant_a`, `variant_b`, `variant_c`).
+3. **Voiceover Synthesis (Edge-TTS):** Neural narration (`ur-PK-AsadNeural` with `-5%` rate and `-2Hz` pitch).
+4. **Visual Generation (Pollinations.ai):** 1080p photorealistic dark cinematic illustrations (zero API keys).
+5. **Dual Video Renderer (FFmpeg):**
+   - **16:9 Long-Form Video (`main_video.mp4`):** Ken Burns zoom + subtitles with fade transitions + 12% ambient audio.
+   - **9:16 Vertical Teaser Short (`teaser_short.mp4`):** High-intensity hook clips formatted with blurred 9:16 background, sharp center visual, and top/bottom CTA banners.
+6. **Thumbnail Generator (Pillow):** Renders all 3 A/B test thumbnail variants with radial vignette, drop shadows, and high-contrast typography.
+7. **YouTube Auto-Uploader (YouTube Data API v3):** Uploads long-form video with thumbnail & tags, uploads teaser as a YouTube Short (`#Shorts`), and registers the video into `data/published_videos.json`.
 8. **Multi-Platform Marketing Engine (`src/marketing.py`):**
-   - Posts pinned discussion comment on YouTube.
-   - Posts thumbnail + caption to Facebook Page (Facebook Graph API).
-   - Posts connected cliffhanger thread to X / Twitter (X API v2).
-   - Broadcasts photo + formatted summary to Telegram Channel (Telegram Bot API).
-   - Outputs full campaign preview to `output/marketing_preview.json`.
-9. **Topic Queue Management (`src/topic_manager.py`):** Reads `topics.txt`, tracks completion in `completed_topics.txt` so topics never repeat.
+   - YouTube pinned discussion question.
+   - Facebook Page storytelling post + photo.
+   - X (Twitter) connected cliffhanger thread.
+   - Telegram Channel photo broadcast + markdown caption.
+9. **Module B (A/B Optimizer):** Monitors videos 6 to 72 hours old. If CTR < 5% or view velocity is low, autonomously swaps live YouTube Title and Thumbnail to untested variants.
 
 ---
 
@@ -49,109 +46,99 @@ Given a topic prompt (or automatically taking the next unused topic from `topics
 
 | File Path | Status | Purpose & Description |
 | :--- | :---: | :--- |
-| `src/config.py` | ✅ Complete | Loads `.env`, auto-discovers `ffmpeg`/`ffprobe`, locates bundled fonts/audio, manages all YouTube & social marketing config flags. |
+| `src/config.py` | ✅ Complete | Loads `.env`, auto-discovers binaries, assets, growth settings, and all social marketing API flags. |
 | `src/topic_manager.py` | ✅ Complete | Manages topic queue from `topics.txt` and records finished runs in `completed_topics.txt`. |
-| `src/script_generator.py` | ✅ Complete | Interfaces with Gemini 2.5 Flash. Generates strict JSON documentary script + marks hook scenes (`is_hook_clip`) + crafts social marketing copy. |
+| `src/trend_hunter.py` | ✅ Complete | **Module A:** Fetches Google Trends RSS + Reddit hot feeds, filters with Gemini, prepends top viral angles to `topics.txt`. |
+| `src/ab_optimizer.py` | ✅ Complete | **Module B:** Checks 6-72hr old videos, tracks performance in `data/published_videos.json`, and swaps live titles/thumbnails. |
+| `src/script_generator.py` | ✅ Complete | Generates documentary script, marks hook clips (`is_hook_clip`), produces social marketing copy, and outputs 3 A/B content variants. |
 | `src/voice_generator.py` | ✅ Complete | Asynchronously synthesizes narration clips per scene via `edge-tts`. Measures exact audio duration using `ffprobe`. |
-| `src/image_generator.py` | ✅ Complete | Downloads 1920x1080 scene visuals from Pollinations.ai with exponential backoff retries, dark documentary style modifiers, and 1.5s rate-limit pacing. |
-| `src/thumbnail_generator.py` | ✅ Complete | Loads raw background, applies dark radial vignette, renders bold hook typography with drop shadow and outline, saves optimized `< 2MB` `thumbnail.jpg`. |
-| `src/video_editor.py` | ✅ Complete | FFmpeg dual renderer: creates 16:9 `main_video.mp4` with Ken Burns & drawtext, plus 9:16 `teaser_short.mp4` with blurred background and CTA banners. |
-| `src/uploader.py` | ✅ Complete | YouTube Data API v3 uploader for both Long-form videos and YouTube Shorts, with resumable chunked upload and `DRY_RUN` simulation. |
+| `src/image_generator.py` | ✅ Complete | Downloads 1920x1080 scene visuals from Pollinations.ai with exponential backoff retries and 1.5s rate-limit pacing. |
+| `src/thumbnail_generator.py` | ✅ Complete | Pillow vignette & typography compositor. Supports rendering multiple A/B hook variants. |
+| `src/video_editor.py` | ✅ Complete | FFmpeg dual renderer: creates 16:9 `main_video.mp4` and 9:16 vertical `teaser_short.mp4`. |
+| `src/uploader.py` | ✅ Complete | YouTube Data API v3 uploader for both Long-form videos and YouTube Shorts, with resumable chunked upload. |
 | `src/marketing.py` | ✅ Complete | Multi-platform distribution engine: YouTube pinned comments, Facebook Pages, X (Twitter) threads, and Telegram broadcasts. |
-| `main.py` | ✅ Complete | Central CLI orchestrator connecting all 7 pipeline stages with rich console progress logging and execution summary tables. |
-| `topics.txt` | ✅ Complete | Topic queue with 10 high-CTR mystery/history documentary topics. |
-| `completed_topics.txt` | ✅ Complete | Historical log of completed runs. |
-| `get_youtube_token.py` | ✅ Complete | Interactive OAuth2 helper script that launches local web auth and prints/saves the permanent `YOUTUBE_REFRESH_TOKEN` to `.env`. |
-| `assets/fonts/font.ttf` | ✅ Complete | Bundled bold TrueType font for subtitle overlays and thumbnail text. |
-| `assets/bg_music.wav` | ✅ Complete | Layered suspenseful dark ambient drone audio loop (44.1kHz stereo). |
-| `.env.example` | ✅ Complete | Comprehensive template with all configurable variables and documentation. |
-| `.env` | ✅ Complete | Local configuration file (contains user's Gemini API key; ignored by git). |
-| `requirements.txt` | ✅ Complete | All pinned Python dependencies including `tweepy`, `edge-tts`, `pillow`, `pydantic`. |
-| `.github/workflows/pipeline.yml` | ✅ Complete | GitHub Actions workflow for scheduled daily runs or manual trigger with topic override. |
-| `README.md` | ✅ Complete | Full documentation, setup instructions, social API setup guides, and architecture flowcharts. |
+| `main.py` | ✅ Complete | Central CLI orchestrator connecting all modules with flags: `--dry-run`, `--live`, `--hunt-trends`, `--optimize-ab`. |
+| `hunt_trends.py` | ✅ Complete | Standalone 1-line CLI runner for Module A (Trend Hunter). |
+| `optimize_ab.py` | ✅ Complete | Standalone 1-line CLI runner for Module B (A/B Optimizer). |
+| `data/published_videos.json` | ✅ Complete | Local state file tracking uploaded video IDs, variant metadata, and swap history. |
+| `topics.txt` | ✅ Complete | Topic queue with curated and trend-injected mystery topics. |
+| `completed_topics.txt` | ✅ Complete | Historical log of completed topics. |
+| `get_youtube_token.py` | ✅ Complete | Updated OAuth2 helper requesting `youtube.upload`, `youtube.force-ssl`, and `yt-analytics.readonly`. |
+| `package.json` | ✅ Complete | NPM script shortcuts: `npm run hunt-trends`, `npm run optimize-ab`, `npm run dry-run`. |
+| `.github/workflows/pipeline.yml` | ✅ Complete | Daily video production and marketing workflow. |
+| `.github/workflows/growth_optimizer.yml` | ✅ Complete | 6-hour cron workflow executing Trend Hunting and A/B Optimization. |
+| `README.md` | ✅ Complete | Comprehensive documentation and API configuration guide. |
 
 ---
 
-## 3. 🚦 Current Status & Known Context
+## 3. 🖥️ Second PC Setup & Handover Checklist
 
-1. **Remote Repository:**
-   - GitHub Repository: [https://github.com/AhsanAli-Soomro/my-youtube-agent](https://github.com/AhsanAli-Soomro/my-youtube-agent)
-   - Branch: `main`
-2. **Current Machine State:**
-   - Codebase fully updated, syntax validated with `py_compile`.
-   - Local `.env` contains the user's active Gemini API key.
-   - `ffmpeg` is **not** installed on this initial staging machine (user will run on their target PC).
-3. **Active Credentials:**
-   - Gemini API Key is saved in `.env`.
-   - Social media keys (Facebook, Twitter, Telegram) are optional and cleanly bypassed if blank.
-   - System is configured in safe `DRY_RUN=true` mode.
+### 1. File Connections to Main Pipeline
+- **`src/trend_hunter.py`** connects to **`topics.txt`**: When run, it feeds new high-performing topics into the top of the queue so `main.py` picks them up automatically.
+- **`src/ab_optimizer.py`** connects to **`data/published_videos.json`**: When `main.py` finishes uploading or testing a video, it automatically registers the video's 3 pre-generated A/B variants. Then `ab_optimizer.py` checks them every 6 hours and updates live YouTube metadata if needed.
 
----
-
-## 4. 💻 Environment & Setup Notes (For Target PC)
-
-### Setup Commands on Target PC:
-
-```bash
-# 1. Clone repository
-git clone https://github.com/AhsanAli-Soomro/my-youtube-agent.git
-cd my-youtube-agent
-
-# 2. Install FFmpeg
-# On Windows (PowerShell):
-winget install Gyan.FFmpeg
-# On macOS:
-brew install ffmpeg
-# On Ubuntu/Linux:
-sudo apt update && sudo apt install -y ffmpeg
-
-# 3. Create & activate Python virtual environment
-python -m venv .venv
-
-# Windows:
-.venv\Scripts\activate
-# macOS / Linux:
-source .venv/bin/activate
-
-# 4. Install Python dependencies
-pip install -r requirements.txt
-
-# 5. Create .env file (copy from .env.example and insert your GEMINI_API_KEY)
-```
-
-### Critical Environment Variables (`.env`):
+### 2. Required `.env` Variables & Google Cloud OAuth Scopes
+Ensure your `.env` on the second PC includes:
 ```env
+# 1. Gemini AI Key (Required)
 GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-2.5-flash
-LANGUAGE=urdu
-VOICE_NAME=ur-PK-AsadNeural
-VOICE_RATE=-5%
-VOICE_PITCH=-2Hz
-UPLOAD_TEASER_SHORT=true
+
+# 2. YouTube OAuth Credentials (For live uploading & A/B swapping)
+YOUTUBE_CLIENT_ID=your_client_id.apps.googleusercontent.com
+YOUTUBE_CLIENT_SECRET=your_client_secret
+YOUTUBE_REFRESH_TOKEN=your_refresh_token
+
+# 3. Growth Modules Configuration
+TREND_COUNTRY_CODES=US,PK,IN,GB
+TREND_MAX_TOPICS=3
+AB_TEST_MIN_AGE_HOURS=6.0
+AB_TEST_MAX_AGE_HOURS=72.0
+AB_TEST_MIN_CTR_PERCENT=5.0
+AB_TEST_MIN_VIEWS_VELOCITY=10.0
+
+# 4. Mode
 DRY_RUN=true
 ```
 
----
+> [!IMPORTANT]
+> **Google Cloud Console Scopes:**
+> When running `python get_youtube_token.py` on the second PC, the helper script now automatically requests all 3 required scopes:
+> - `https://www.googleapis.com/auth/youtube.upload` (Video uploads)
+> - `https://www.googleapis.com/auth/youtube.force-ssl` (Title & thumbnail A/B swapping + comments)
+> - `https://www.googleapis.com/auth/yt-analytics.readonly` (Performance & CTR monitoring)
+>
+> In Google Cloud Console, ensure both **YouTube Data API v3** and **YouTube Analytics API** are enabled.
 
-## 5. 🎯 Immediate Next Steps
+### 3. Local Data & State Files
+The following state files are initialized in the repository and ready on the second PC:
+- `topics.txt`: Topic queue (trend hunter prepends to this file).
+- `completed_topics.txt`: Prevents duplicate topics.
+- `data/published_videos.json`: Tracks video variants and A/B test histories.
 
-When resuming work on the new computer:
+### 4. Exact Terminal Commands to Test on the Second PC
 
-1. **Run Initial Dry-Run Test:**
-   ```bash
-   python main.py --dry-run
-   ```
-   *(Picks the next topic from `topics.txt` and generates `main_video.mp4`, `teaser_short.mp4`, `thumbnail.jpg`, `metadata.json`, and `marketing_preview.json`)*.
-2. **Inspect Generated Outputs:**
-   Check the folder inside `output/`:
-   - `main_video.mp4`: Verify Ken Burns zoom, Urdu subtitle box, and 12% ambient audio.
-   - `teaser_short.mp4`: Verify 9:16 vertical crop with blurred background and CTA banner.
-   - `thumbnail.jpg`: Verify dark vignette and bold contrast typography.
-   - `marketing_preview.json`: Review YouTube pinned comment, Facebook post, Twitter thread, and Telegram post.
-3. **Configure YouTube & Social Accounts (When Ready for Live Publishing):**
-   - Run `python get_youtube_token.py` to authenticate YouTube.
-   - (Optional) Fill in Facebook Page, X (Twitter), or Telegram Bot keys in `.env`.
-4. **Trigger Live Automated Campaign:**
-   ```bash
-   python main.py --live
-   ```
+#### A. Test Module A (Real-Time Trend Hunter):
+```bash
+python hunt_trends.py
+# Or via main CLI:
+python main.py --hunt-trends
+# Or via npm:
+npm run hunt-trends
+```
+*Expected Result:* Fetches headlines from Google Trends (US/PK/IN/GB) and Reddit, scores them with Gemini, and prepends the top 3 viral mystery topics to `topics.txt`.
+
+#### B. Test Module B (A/B Title & Thumbnail Optimizer):
+```bash
+python optimize_ab.py
+# Or via main CLI:
+python main.py --optimize-ab
+# Or via npm:
+npm run optimize-ab
+```
+*Expected Result:* Inspects `data/published_videos.json`, evaluates performance windows (6–72h), and simulates title/thumbnail swaps for underperforming videos.
+
+#### C. Run Full End-to-End Production & Marketing (Dry Run):
+```bash
+python main.py --dry-run
+```
+*Expected Result:* Picks the top trending topic from `topics.txt`, generates long-form 16:9 video, 9:16 teaser short, all 3 A/B thumbnail variants (`thumbnail_a.jpg`, `thumbnail_b.jpg`, `thumbnail_c.jpg`), registers the video for A/B tracking in `data/published_videos.json`, and outputs `marketing_preview.json`.

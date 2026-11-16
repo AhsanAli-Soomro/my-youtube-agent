@@ -1,0 +1,94 @@
+name: Organic Growth & A/B Optimizer Agent
+
+on:
+  # Automated scheduled trigger: Runs every 6 hours
+  schedule:
+    - cron: '0 */6 * * *'
+
+  # Manual on-demand trigger
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Optimization Action to Run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - 'all'
+          - 'hunt_trends'
+          - 'optimize_ab'
+      dry_run:
+        description: 'Dry Run Mode (Simulate without modifying live YouTube videos)'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  growth-optimizer:
+    name: Trend Hunter & A/B Optimizer
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🕵️ Step 1: Run Real-Time Trend Hunter
+        if: ${{ github.event.inputs.action == 'all' || github.event.inputs.action == 'hunt_trends' || github.event_name == 'schedule' }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          TREND_COUNTRY_CODES: ${{ vars.TREND_COUNTRY_CODES || 'US,PK,IN,GB' }}
+          TREND_MAX_TOPICS: ${{ vars.TREND_MAX_TOPICS || '3' }}
+        run: |
+          python hunt_trends.py
+
+      - name: 📈 Step 2: Run Automated A/B Title & Thumbnail Optimizer
+        if: ${{ github.event.inputs.action == 'all' || github.event.inputs.action == 'optimize_ab' || github.event_name == 'schedule' }}
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          AB_TEST_MIN_AGE_HOURS: ${{ vars.AB_TEST_MIN_AGE_HOURS || '6.0' }}
+          AB_TEST_MAX_AGE_HOURS: ${{ vars.AB_TEST_MAX_AGE_HOURS || '72.0' }}
+          AB_TEST_MIN_CTR_PERCENT: ${{ vars.AB_TEST_MIN_CTR_PERCENT || '5.0' }}
+          AB_TEST_MIN_VIEWS_VELOCITY: ${{ vars.AB_TEST_MIN_VIEWS_VELOCITY || '10.0' }}
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
+            python optimize_ab.py --live
+          else
+            python optimize_ab.py
+          fi
+
+      - name: 💾 Commit Updated Topic Queue & A/B Tracking Data
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add topics.txt data/published_videos.json || true
+          if git diff --staged --quiet; then
+            echo "No changes to topics or A/B tracking state."
+          else
+            git commit -m "chore(auto): update trending topics queue and A/B test state [skip ci]"
+            git push origin main || echo "Could not push back to repo. State saved in artifacts."
+          fi
+
+      - name: 📦 Upload Optimizer State Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: optimizer-state-${{ github.run_id }}
+          path: |
+            topics.txt
+            data/published_videos.json
+          retention-days: 14

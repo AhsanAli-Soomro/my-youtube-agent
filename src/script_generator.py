@@ -33,6 +33,12 @@ class Scene(BaseModel):
     )
 
 
+class ContentVariant(BaseModel):
+    title: str = Field(..., description="High-CTR title variant.")
+    thumbnail_prompt: str = Field(..., description="16:9 visual illustration prompt.")
+    thumbnail_text: str = Field(..., description="Short 2-4 word punchy hook text.")
+
+
 class DocumentaryScript(BaseModel):
     title: str = Field(..., description="High-CTR, curiosity-driven documentary title.")
     description: str = Field(
@@ -47,6 +53,18 @@ class DocumentaryScript(BaseModel):
     thumbnail_text: str = Field(
         ...,
         description="Short 2-4 word punchy hook text for thumbnail typography.",
+    )
+    variant_a: Optional[ContentVariant] = Field(
+        default=None,
+        description="Primary high-CTR documentary title & thumbnail variant.",
+    )
+    variant_b: Optional[ContentVariant] = Field(
+        default=None,
+        description="Alternative curiosity-gap / forensic anomaly title & thumbnail variant for A/B testing.",
+    )
+    variant_c: Optional[ContentVariant] = Field(
+        default=None,
+        description="Alternative controversial / forbidden truth title & thumbnail variant for A/B testing.",
     )
     youtube_pinned_comment: str = Field(
         default="",
@@ -129,6 +147,21 @@ Return a single, strictly valid JSON object matching this exact schema:
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10"],
   "thumbnail_prompt": "Ultra-detailed 16:9 prompt for a dramatic thumbnail background",
   "thumbnail_text": "2-4 WORDS PUNCHY HOOK",
+  "variant_a": {
+    "title": "Primary High-CTR Title (e.g. The Untold Story of Flight 370)",
+    "thumbnail_prompt": "16:9 cinematic thumbnail illustration prompt",
+    "thumbnail_text": "VANISHED FOREVER"
+  },
+  "variant_b": {
+    "title": "Curiosity-Gap Title (e.g. The 3 Minutes Radar Can't Explain)",
+    "thumbnail_prompt": "Alternative visual prompt focusing on radar map & eerie ocean",
+    "thumbnail_text": "THE GLITCH"
+  },
+  "variant_c": {
+    "title": "Controversial Question Title (e.g. What Did the Navy Hide?)",
+    "thumbnail_prompt": "Alternative visual prompt focusing on classified files & forensic anomalies",
+    "thumbnail_text": "THE COVERUP"
+  },
   "youtube_pinned_comment": "Curiosity question to provoke discussion in comments (e.g. 'Do you believe it was an inside cover-up or a bizarre natural anomaly? Let me know your theory below 👇')",
   "facebook_post": "Compelling suspenseful hook post for Facebook Page with emojis and call to action to watch the full documentary.",
   "twitter_thread": [
@@ -230,8 +263,30 @@ def generate_documentary_script(
     try:
         parsed_dict = json.loads(cleaned_json)
         script = DocumentaryScript.model_validate(parsed_dict)
+
+        # Ensure all 3 A/B testing variants are populated
+        if not script.variant_a:
+            script.variant_a = ContentVariant(
+                title=script.title,
+                thumbnail_prompt=script.thumbnail_prompt,
+                thumbnail_text=script.thumbnail_text,
+            )
+        if not script.variant_b:
+            script.variant_b = ContentVariant(
+                title=f"The 3 Anomalies That Defy Science: {script.title}",
+                thumbnail_prompt=script.thumbnail_prompt + ", ominous dark investigation archive room",
+                thumbnail_text="THE EVIDENCE",
+            )
+        if not script.variant_c:
+            script.variant_c = ContentVariant(
+                title=f"What Really Happened? The Untold Truth of {topic}",
+                thumbnail_prompt=script.thumbnail_prompt + ", classified redacted records, dramatic neon backlight",
+                thumbnail_text="THE TRUTH",
+            )
+
         logger.info(
-            f"Successfully generated script: '{script.title}' with {len(script.scenes)} scenes."
+            f"Successfully generated script: '{script.title}' with {len(script.scenes)} scenes "
+            f"and 3 A/B test variants."
         )
         return script
     except Exception as parse_err:
