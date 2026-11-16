@@ -9,12 +9,12 @@
 Doosre PC par Antigravity ya kisi bhi AI agent ko bas ye copy-paste karein:
 
 ```text
-README.md aur PROGRESS.md read karo aur mera environment setup kar ke dry-run test chala do.
+README.md aur PROGRESS.md read karo, FFmpeg verify/install karo, virtual environment bana kar dependencies install karo, aur ek complete playable 2-minute dry-run video generate kar ke dikhao.
 ```
 
 ### Complete Detailed Prompt (Optional):
 ```text
-Maine is project ko GitHub se clone kiya hai. Root mein maujood README.md aur PROGRESS.md read karo, virtual environment bana kar requirements.txt install karo, .env configure karo, aur ek 2-minute ka Urdu dry-run test video generate kar ke output dikhao.
+Maine is project ko GitHub se clone kiya hai. Root mein maujood README.md aur PROGRESS.md read karo. System par FFmpeg verify/install karo taake real MP4 video render ho sakay. Phir virtual environment bana kar requirements.txt install karo, .env configure karo, aur ek 2-minute ka Urdu dry-run test video (main_video.mp4 aur teaser_short.mp4) generate kar ke output verify karo.
 ```
 
 ---
@@ -142,3 +142,41 @@ npm run optimize-ab
 python main.py --dry-run
 ```
 *Expected Result:* Picks the top trending topic from `topics.txt`, generates long-form 16:9 video, 9:16 teaser short, all 3 A/B thumbnail variants (`thumbnail_a.jpg`, `thumbnail_b.jpg`, `thumbnail_c.jpg`), registers the video for A/B tracking in `data/published_videos.json`, and outputs `marketing_preview.json`.
+
+---
+
+### 5. 🎥 Mandatory Requirement: FFmpeg (Real Video Rendering vs 36-Byte Placeholder)
+
+> [!WARNING]
+> **Video File Size Notice (36 Bytes vs Playable MP4):**
+> - In our initial Mac test, FFmpeg was not installed (installation was skipped to speed up the run). The pipeline contains an intelligent fallback in `src/video_editor.py` that generates a **36-byte mock MP4 header** so the pipeline can complete testing all other components (Gemini script, Edge-TTS audio, Pollinations.ai images, and Pillow thumbnails) without throwing errors.
+> - **All 9 audio clips (.mp3), 9 scene images (.jpg), and 3 thumbnails (.jpg) were 100% generated in full quality.**
+> - To stitch these images and audios into an **actual, playable 1080p MP4 documentary with Ken Burns motion, subtitles, and background audio**, **FFmpeg is strictly required**.
+
+#### Install FFmpeg on the Second PC:
+
+**Windows (PowerShell / Command Prompt):**
+```powershell
+winget install Gyan.FFmpeg
+# Ya chocolatey use karein:
+choco install ffmpeg
+```
+
+**Linux (Ubuntu / Debian):**
+```bash
+sudo apt-get update && sudo apt-get install -y ffmpeg
+```
+
+**macOS (Homebrew - fast & non-interactive):**
+```bash
+HOMEBREW_NO_AUTO_UPDATE=1 brew install ffmpeg
+```
+
+#### Verify Installation:
+```bash
+ffmpeg -version
+```
+Jab FFmpeg installed hoga, tab `python main.py --dry-run` chalane se:
+1. `main_video.mp4` (~15–30 MB, 1080p Full HD, Ken Burns zoom animation, Urdu subtitles, background ambient sound).
+2. `teaser_short.mp4` (~8–15 MB, 1080x1920 vertical layout with blurred background and CTA banners).
+3. Saath mein teeno thumbnails (`thumbnail_a.jpg`, `thumbnail_b.jpg`, `thumbnail_c.jpg`) aur metadata mukammal taur par ban kar ready honge.

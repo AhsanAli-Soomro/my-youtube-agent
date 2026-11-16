@@ -11,7 +11,7 @@ An enterprise-grade, completely automated, end-to-end documentary video producti
 ## 🌟 Key Features
 
 - **Zero Paid APIs / 100% Free Pipeline**:
-  - 🧠 **Script & Marketing Copy**: Google Gemini Free API (`gemini-2.5-flash`) via Google AI Studio.
+  - 🧠 **Script & Marketing Copy**: Google Gemini Free API (`gemini-3.8-flash`) via Google AI Studio.
   - 🎙️ **Human-like Voiceover**: Microsoft `edge-tts` (supports natural Urdu `ur-PK-AsadNeural`, Hindi `hi-IN-MadhurNeural`, and English).
   - 🎨 **Visual Asset Generation**: Pollinations.ai 1080p photorealistic illustrations (no API key required).
   - 🎞️ **Dual Video Renderer (FFmpeg)**:
@@ -119,7 +119,7 @@ youtube-ai-agent/
 > **Using an AI Agent on another computer?** Simply clone this repository and give your AI agent this prompt:
 > 
 > ```text
-> README.md aur PROGRESS.md read karo aur mera environment setup kar ke dry-run test chala do.
+> README.md aur PROGRESS.md read karo, FFmpeg verify/install karo, aur mera environment setup kar ke complete playable dry-run video generate karo.
 > ```
 
 ### 1. Clone & Set Up Virtual Environment
