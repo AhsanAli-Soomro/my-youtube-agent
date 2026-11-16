@@ -30,32 +30,32 @@ jobs:
     timeout-minutes: 25
 
     steps:
-      - name: 📥 Checkout Repository
+      - name: "Checkout Repository"
         uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python 3.11
+      - name: "Set up Python 3.11"
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: 📦 Install Python Dependencies
+      - name: "Install Python Dependencies"
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 🕵️ Step 1: Run Real-Time Trend Hunter
-        if: ${{ github.event.inputs.action == 'all' || github.event.inputs.action == 'hunt_trends' || github.event_name == 'schedule' }}
+      - name: "Step 1: Run Real-Time Trend Hunter"
+        if: ${{ github.event_name == 'schedule' || inputs.action == 'all' || inputs.action == 'hunt_trends' }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.8-flash' }}
           TREND_COUNTRY_CODES: ${{ vars.TREND_COUNTRY_CODES || 'US,PK,IN,GB' }}
           TREND_MAX_TOPICS: ${{ vars.TREND_MAX_TOPICS || '3' }}
         run: |
           python hunt_trends.py
 
-      - name: 📈 Step 2: Run Automated A/B Title & Thumbnail Optimizer
-        if: ${{ github.event.inputs.action == 'all' || github.event.inputs.action == 'optimize_ab' || github.event_name == 'schedule' }}
+      - name: "Step 2: Run Automated A/B Title & Thumbnail Optimizer"
+        if: ${{ github.event_name == 'schedule' || inputs.action == 'all' || inputs.action == 'optimize_ab' }}
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
@@ -65,13 +65,13 @@ jobs:
           AB_TEST_MIN_CTR_PERCENT: ${{ vars.AB_TEST_MIN_CTR_PERCENT || '5.0' }}
           AB_TEST_MIN_VIEWS_VELOCITY: ${{ vars.AB_TEST_MIN_VIEWS_VELOCITY || '10.0' }}
         run: |
-          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
+          if [ "${{ inputs.dry_run }}" = "false" ]; then
             python optimize_ab.py --live
           else
             python optimize_ab.py
           fi
 
-      - name: 💾 Commit Updated Topic Queue & A/B Tracking Data
+      - name: "Commit Updated Topic Queue & A/B Tracking Data"
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -83,7 +83,7 @@ jobs:
             git push origin main || echo "Could not push back to repo. State saved in artifacts."
           fi
 
-      - name: 📦 Upload Optimizer State Artifacts
+      - name: "Upload Optimizer State Artifacts"
         uses: actions/upload-artifact@v4
         if: always()
         with:

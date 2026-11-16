@@ -68,7 +68,7 @@ jobs:
       - name: 🎬 Run Documentary & Multi-Platform Marketing Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.8-flash' }}
           VOICE_NAME: ${{ vars.VOICE_NAME || (github.event.inputs.language == 'hindi' && 'hi-IN-MadhurNeural' || (github.event.inputs.language == 'english' && 'en-US-ChristopherNeural' || 'ur-PK-AsadNeural')) }}
           VOICE_RATE: ${{ vars.VOICE_RATE || '-5%' }}
           VOICE_PITCH: ${{ vars.VOICE_PITCH || '-2Hz' }}
