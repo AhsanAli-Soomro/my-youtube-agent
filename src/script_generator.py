@@ -147,21 +147,21 @@ Return a single, strictly valid JSON object matching this exact schema:
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10"],
   "thumbnail_prompt": "Ultra-detailed 16:9 prompt for a dramatic thumbnail background",
   "thumbnail_text": "2-4 WORDS PUNCHY HOOK",
-  "variant_a": {
+  "variant_a": {{
     "title": "Primary High-CTR Title (e.g. The Untold Story of Flight 370)",
     "thumbnail_prompt": "16:9 cinematic thumbnail illustration prompt",
     "thumbnail_text": "VANISHED FOREVER"
-  },
-  "variant_b": {
+  }},
+  "variant_b": {{
     "title": "Curiosity-Gap Title (e.g. The 3 Minutes Radar Can't Explain)",
     "thumbnail_prompt": "Alternative visual prompt focusing on radar map & eerie ocean",
     "thumbnail_text": "THE GLITCH"
-  },
-  "variant_c": {
+  }},
+  "variant_c": {{
     "title": "Controversial Question Title (e.g. What Did the Navy Hide?)",
     "thumbnail_prompt": "Alternative visual prompt focusing on classified files & forensic anomalies",
     "thumbnail_text": "THE COVERUP"
-  },
+  }},
   "youtube_pinned_comment": "Curiosity question to provoke discussion in comments (e.g. 'Do you believe it was an inside cover-up or a bizarre natural anomaly? Let me know your theory below 👇')",
   "facebook_post": "Compelling suspenseful hook post for Facebook Page with emojis and call to action to watch the full documentary.",
   "twitter_thread": [

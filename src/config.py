@@ -103,7 +103,7 @@ class Config:
 
     # Google Gemini
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "").strip()
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
 
     # Documentary Content
     LANGUAGE: str = os.getenv("LANGUAGE", "urdu").strip().lower()
