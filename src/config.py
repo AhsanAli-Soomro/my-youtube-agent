@@ -1,0 +1,169 @@
+"""
+Configuration and Environment Management Module
+"""
+
+import os
+import shutil
+import sys
+from pathlib import Path
+from typing import Optional
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Root directory of the repository
+BASE_DIR = Path(__file__).resolve().parent.parent
+ASSETS_DIR = BASE_DIR / "assets"
+FONTS_DIR = ASSETS_DIR / "fonts"
+OUTPUT_DIR = BASE_DIR / "output"
+
+
+def _find_binary(name: str, env_var: Optional[str] = None) -> Optional[str]:
+    """Find the path of a binary like ffmpeg or ffprobe across PATH and common locations."""
+    if env_var and os.getenv(env_var):
+        candidate = Path(os.getenv(env_var))
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+
+    which_path = shutil.which(name)
+    if which_path:
+        return which_path
+
+    common_locations = [
+        Path(f"/opt/homebrew/bin/{name}"),
+        Path(f"/usr/local/bin/{name}"),
+        Path(f"/usr/bin/{name}"),
+        Path(f"/bin/{name}"),
+        Path(f"C:/ffmpeg/bin/{name}.exe"),
+        Path(f"C:/Program Files/ffmpeg/bin/{name}.exe"),
+    ]
+
+    for loc in common_locations:
+        if loc.is_file() and os.access(loc, os.X_OK):
+            return str(loc)
+
+    return None
+
+
+def _find_default_font() -> str:
+    """Find a bold font for video subtitles and thumbnail text."""
+    # 1. Local font in assets
+    local_font_candidates = [
+        FONTS_DIR / "font.ttf",
+        FONTS_DIR / "Montserrat-Bold.ttf",
+        FONTS_DIR / "BebasNeue-Regular.ttf",
+        FONTS_DIR / "Roboto-Bold.ttf",
+    ]
+    for font_path in local_font_candidates:
+        if font_path.is_file():
+            return str(font_path)
+
+    # 2. Operating system fonts
+    os_candidates = [
+        # macOS
+        Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf"),
+        Path("/System/Library/Fonts/Supplemental/Arial Black.ttf"),
+        Path("/System/Library/Fonts/Helvetica.ttc"),
+        Path("/Library/Fonts/Arial Bold.ttf"),
+        # Linux / Ubuntu (GitHub Actions)
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
+        Path("/usr/share/fonts/truetype/freefont/FreeSansBold.ttf"),
+        Path("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"),
+        # Windows
+        Path("C:/Windows/Fonts/arialbd.ttf"),
+        Path("C:/Windows/Fonts/impact.ttf"),
+    ]
+
+    for candidate in os_candidates:
+        if candidate.is_file():
+            return str(candidate)
+
+    # Fallback to font.ttf path even if not yet downloaded
+    return str(FONTS_DIR / "font.ttf")
+
+
+def _find_bg_music() -> str:
+    """Find default background music audio file."""
+    candidates = [
+        ASSETS_DIR / "bg_music.mp3",
+        ASSETS_DIR / "bg_music.wav",
+        ASSETS_DIR / "music" / "bg_music.mp3",
+        ASSETS_DIR / "music" / "bg_music.wav",
+    ]
+    for c in candidates:
+        if c.is_file():
+            return str(c)
+    return str(ASSETS_DIR / "bg_music.wav")
+
+
+class Config:
+    """Application runtime configuration with type-casting and defaults."""
+
+    # Google Gemini
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "").strip()
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
+
+    # Documentary Content
+    LANGUAGE: str = os.getenv("LANGUAGE", "urdu").strip().lower()
+    DEFAULT_TOPIC: str = os.getenv(
+        "DEFAULT_TOPIC", "The Mysterious Disappearance of Flight 370"
+    ).strip()
+    TARGET_DURATION_MINUTES: int = int(os.getenv("TARGET_DURATION_MINUTES", "2"))
+
+    # Voiceover (Edge TTS)
+    VOICE_NAME: str = os.getenv("VOICE_NAME", "ur-PK-AsadNeural").strip()
+    VOICE_RATE: str = os.getenv("VOICE_RATE", "-5%").strip()
+    VOICE_PITCH: str = os.getenv("VOICE_PITCH", "-2Hz").strip()
+
+    # Video Settings
+    VIDEO_WIDTH: int = int(os.getenv("VIDEO_WIDTH", "1920"))
+    VIDEO_HEIGHT: int = int(os.getenv("VIDEO_HEIGHT", "1080"))
+    VIDEO_FPS: int = int(os.getenv("VIDEO_FPS", "30"))
+    BG_MUSIC_VOLUME: float = float(os.getenv("BG_MUSIC_VOLUME", "0.12"))
+
+    # YouTube Data API
+    YOUTUBE_CLIENT_ID: str = os.getenv("YOUTUBE_CLIENT_ID", "").strip()
+    YOUTUBE_CLIENT_SECRET: str = os.getenv("YOUTUBE_CLIENT_SECRET", "").strip()
+    YOUTUBE_REFRESH_TOKEN: str = os.getenv("YOUTUBE_REFRESH_TOKEN", "").strip()
+    YOUTUBE_PRIVACY_STATUS: str = os.getenv("YOUTUBE_PRIVACY_STATUS", "private").strip().lower()
+    YOUTUBE_CATEGORY_ID: str = os.getenv("YOUTUBE_CATEGORY_ID", "27").strip()
+
+    # Operational Flags
+    DRY_RUN: bool = os.getenv("DRY_RUN", "true").strip().lower() in ("true", "1", "yes")
+
+    # Binary & Asset Paths
+    FFMPEG_PATH: Optional[str] = _find_binary("ffmpeg", "FFMPEG_PATH")
+    FFPROBE_PATH: Optional[str] = _find_binary("ffprobe", "FFPROBE_PATH")
+    FONT_PATH: str = _find_default_font()
+    BG_MUSIC_PATH: str = _find_bg_music()
+
+    @classmethod
+    def validate_for_execution(cls, dry_run: Optional[bool] = None) -> list[str]:
+        """Validate critical configuration settings and return list of missing items."""
+        is_dry = cls.DRY_RUN if dry_run is None else dry_run
+        issues = []
+
+        if not cls.GEMINI_API_KEY:
+            issues.append("GEMINI_API_KEY is not set. Get a free API key at https://aistudio.google.com/")
+
+        if not cls.FFMPEG_PATH:
+            issues.append(
+                "ffmpeg binary not found in PATH or standard directories. "
+                "Install it (e.g., `brew install ffmpeg` on macOS or `apt install ffmpeg` on Linux)."
+            )
+
+        if not cls.FFPROBE_PATH:
+            issues.append(
+                "ffprobe binary not found in PATH or standard directories. "
+                "Ensure ffprobe is installed alongside ffmpeg."
+            )
+
+        if not is_dry:
+            if not cls.YOUTUBE_CLIENT_ID or not cls.YOUTUBE_CLIENT_SECRET or not cls.YOUTUBE_REFRESH_TOKEN:
+                issues.append(
+                    "YouTube OAuth credentials missing (YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, "
+                    "YOUTUBE_REFRESH_TOKEN). Run `python get_youtube_token.py` or set DRY_RUN=true."
+                )
+
+        return issues

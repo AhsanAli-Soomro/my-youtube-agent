@@ -1,0 +1,20 @@
+# Core AI & Voice
+google-genai>=1.0.0
+google-generativeai>=0.8.0
+edge-tts>=6.1.19
+
+# Image & Visual Processing
+pillow>=10.0.0
+
+# HTTP & Async
+httpx>=0.27.0
+
+# YouTube Data API v3 & Authentication
+google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+
+# Utilities, CLI & Formatting
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+rich>=13.0.0

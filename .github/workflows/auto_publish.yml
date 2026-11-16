@@ -1,0 +1,104 @@
+name: Automated YouTube Documentary Generator & Uploader
+
+on:
+  # Manual trigger with custom parameters
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Documentary Mystery / History Topic'
+        required: true
+        default: 'The Mysterious Disappearance of Flight 370'
+        type: string
+      duration_minutes:
+        description: 'Target Video Duration in Minutes'
+        required: true
+        default: '2'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - '5'
+      language:
+        description: 'Narration Language'
+        required: true
+        default: 'urdu'
+        type: choice
+        options:
+          - 'urdu'
+          - 'hindi'
+          - 'english'
+      dry_run:
+        description: 'Dry Run Mode (simulate video generation without uploading to YouTube)'
+        required: true
+        default: true
+        type: boolean
+
+  # Automated scheduled trigger (e.g. Every Monday & Thursday at 14:00 UTC)
+  schedule:
+    - cron: '0 14 * * 1,4'
+
+jobs:
+  generate-and-publish:
+    name: Generate & Publish Documentary
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 🎥 Install FFmpeg & Open Fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-freefont-ttf
+          ffmpeg -version | head -n 2
+
+      - name: 📦 Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🎬 Run Documentary Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          VOICE_NAME: ${{ vars.VOICE_NAME || (github.event.inputs.language == 'hindi' && 'hi-IN-MadhurNeural' || (github.event.inputs.language == 'english' && 'en-US-ChristopherNeural' || 'ur-PK-AsadNeural')) }}
+          VOICE_RATE: ${{ vars.VOICE_RATE || '-5%' }}
+          VOICE_PITCH: ${{ vars.VOICE_PITCH || '-2Hz' }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_PRIVACY_STATUS: ${{ vars.YOUTUBE_PRIVACY_STATUS || 'private' }}
+          YOUTUBE_CATEGORY_ID: ${{ vars.YOUTUBE_CATEGORY_ID || '27' }}
+        run: |
+          TOPIC="${{ github.event.inputs.topic || 'The Dark Mysteries of the Bermuda Triangle' }}"
+          DURATION="${{ github.event.inputs.duration_minutes || '2' }}"
+          LANG="${{ github.event.inputs.language || 'urdu' }}"
+          
+          # Check whether dry-run is requested (default to dry-run if scheduled or unset)
+          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
+            RUN_MODE="--live"
+          else
+            RUN_MODE="--dry-run"
+          fi
+          
+          echo "Running pipeline with Topic: $TOPIC | Duration: $DURATION min | Lang: $LANG | Mode: $RUN_MODE"
+          python main.py --topic "$TOPIC" --duration "$DURATION" --lang "$LANG" $RUN_MODE
+
+      - name: 💾 Upload Video & Assets Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: documentary-output-${{ github.run_id }}
+          path: |
+            output/**/output.mp4
+            output/**/thumbnail.jpg
+            output/**/metadata.json
+          retention-days: 14

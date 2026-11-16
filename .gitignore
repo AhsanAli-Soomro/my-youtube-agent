@@ -1,0 +1,34 @@
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Sensitive Environment Files & OAuth Secrets
+.env
+client_secret*.json
+token.json
+oauth_credentials.json
+
+# Generated Outputs & Temporary Working Files
+output/
+temp/
+*.mp4
+*.mp3
+*.wav
+!assets/bg_music.wav
+*.jpg
+*.jpeg
+*.png
+!assets/fonts/**
+
+# System & OS Files
+.DS_Store
+Thumbs.db
