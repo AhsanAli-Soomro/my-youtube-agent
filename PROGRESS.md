@@ -25,7 +25,7 @@ We have built an enterprise-grade, **100% Free, End-to-End Automated Documentary
 
 ### Complete System Pipeline:
 1. **Module A (Trend Hunter):** Real-time RSS & Reddit scraper that filters breaking mysteries/anomalies via Gemini and prepends them to `topics.txt`.
-2. **Script & Scene Director (Gemini 2.5 Flash):** Researches and writes a suspenseful investigative documentary script in authentic Urdu script, Devanagari Hindi, or English, generating 3 pre-computed A/B test title/thumbnail variants (`variant_a`, `variant_b`, `variant_c`).
+2. **Script & Scene Director (Gemini 3.8 Flash):** Researches and writes a suspenseful investigative documentary script in authentic Urdu script, Devanagari Hindi, or English, generating 3 pre-computed A/B test title/thumbnail variants (`variant_a`, `variant_b`, `variant_c`).
 3. **Voiceover Synthesis (Edge-TTS):** Neural narration (`ur-PK-AsadNeural` with `-5%` rate and `-2Hz` pitch).
 4. **Visual Generation (Pollinations.ai):** 1080p photorealistic dark cinematic illustrations (zero API keys).
 5. **Dual Video Renderer (FFmpeg):**
