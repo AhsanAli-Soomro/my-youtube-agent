@@ -103,6 +103,13 @@ youtube-ai-agent/
 
 ## ⚡ Quick Start (Local Setup)
 
+> [!TIP]
+> **Using an AI Agent on another computer?** Simply clone this repository and give your AI agent this one-line prompt:
+> 
+> **`"README.md aur PROGRESS.md read karo aur mera environment setup kar ke dry-run test chala do."`**
+> 
+> The agent will automatically read [PROGRESS.md](file:///Volumes/Data/youtube%20ai%20agent/PROGRESS.md), configure your virtual environment, install requirements, and run the first dry-run documentary generation!
+
 ### 1. Clone & Set Up Virtual Environment
 
 ```bash

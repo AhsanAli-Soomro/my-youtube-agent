@@ -4,6 +4,16 @@
 
 ---
 
+## 🤖 Fast Resume Prompt (For AI Agent on Target PC)
+
+Copy and paste this exact prompt to Antigravity / your AI agent when you open this repo on your other computer:
+
+> **"README.md aur PROGRESS.md read karo aur mera environment setup kar ke dry-run test chala do."**
+
+*(English: "Read README.md and PROGRESS.md, set up the virtual environment, install requirements.txt, ensure .env is ready, and execute a 2-minute Urdu dry-run test video.")*
+
+---
+
 ## 1. 🎯 Project Overview
 
 We are building a **100% Free, End-to-End Automated Documentary YouTube Video Generator & Uploader** pipeline in **Python**.
