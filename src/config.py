@@ -32,6 +32,8 @@ def _find_binary(name: str, env_var: Optional[str] = None) -> Optional[str]:
         return which_path
 
     common_locations = [
+        BASE_DIR / ".venv" / "bin" / name,
+        BASE_DIR / ".venv" / "Scripts" / f"{name}.exe",
         Path(f"/opt/homebrew/bin/{name}"),
         Path(f"/usr/local/bin/{name}"),
         Path(f"/usr/bin/{name}"),

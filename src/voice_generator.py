@@ -6,7 +6,9 @@ Generates high quality, natural voiceovers for each scene clip and measures exac
 import asyncio
 import logging
 import os
+import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import List, Tuple, Optional
 import edge_tts
@@ -15,6 +17,17 @@ from src.config import Config
 from src.script_generator import Scene
 
 logger = logging.getLogger("youtube_agent.voice")
+
+
+def _find_edge_tts_bin() -> str:
+    """Find the edge-tts executable in PATH or the current virtualenv."""
+    which_path = shutil.which("edge-tts")
+    if which_path:
+        return which_path
+    venv_candidate = Path(sys.executable).parent / "edge-tts"
+    if venv_candidate.is_file():
+        return str(venv_candidate)
+    return "edge-tts"
 
 
 def get_audio_duration_ffprobe(audio_path: str, ffprobe_bin: Optional[str] = None) -> float:
@@ -68,63 +81,91 @@ async def synthesize_scene_audio(
     v_rate = rate or Config.VOICE_RATE
     v_pitch = pitch or Config.VOICE_PITCH
 
+    output_dir.mkdir(parents=True, exist_ok=True)
     filename = output_dir / f"scene_{scene_index:03d}.mp3"
     clean_text = narration.strip() if narration and narration.strip() else "خاموشی"
 
-    # Attempt 1: Native edge-tts Python API
-    try:
-        communicate = edge_tts.Communicate(
-            text=clean_text,
-            voice=v_voice,
-            rate=v_rate,
-            pitch=v_pitch,
-        )
-        await communicate.save(str(filename))
-        if filename.is_file() and filename.stat().st_size > 500:
-            duration = get_audio_duration_ffprobe(str(filename), ffprobe_bin)
-            logger.info(f"Scene {scene_index:03d} synthesized (API): {duration:.2f}s -> {filename.name}")
-            return scene_index, filename, duration
-    except Exception as api_err:
-        logger.debug(f"Native TTS API call failed for scene {scene_index}: {api_err}. Trying CLI...")
+    # Build candidate voices list for resilience (e.g. AsadNeural sometimes rejects specific Urdu vocabulary)
+    voices_to_try = [v_voice]
+    if "ur-PK" in v_voice or "urdu" in v_voice.lower():
+        for alt in ["ur-IN-SalmanNeural", "ur-PK-UzmaNeural"]:
+            if alt not in voices_to_try:
+                voices_to_try.append(alt)
+    elif "hi-IN" in v_voice or "hindi" in v_voice.lower():
+        if "hi-IN-SwaraNeural" not in voices_to_try:
+            voices_to_try.append("hi-IN-SwaraNeural")
+    elif "en-US" in v_voice or "english" in v_voice.lower():
+        if "en-US-GuyNeural" not in voices_to_try:
+            voices_to_try.append("en-US-GuyNeural")
 
-    # Attempt 2: Direct edge-tts CLI execution (handles connection lifecycles independently)
-    try:
-        cmd = [
-            "edge-tts",
-            "--voice", v_voice,
-            f"--rate={v_rate}",
-            f"--pitch={v_pitch}",
-            "--text", clean_text,
-            "--write-media", str(filename),
-        ]
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=25)
-        if res.returncode == 0 and filename.is_file() and filename.stat().st_size > 500:
-            duration = get_audio_duration_ffprobe(str(filename), ffprobe_bin)
-            logger.info(f"Scene {scene_index:03d} synthesized (CLI): {duration:.2f}s -> {filename.name}")
-            return scene_index, filename, duration
-    except Exception as cli_err:
-        logger.warning(f"TTS CLI execution error for scene {scene_index}: {cli_err}")
+    tts_bin = _find_edge_tts_bin()
 
-    # Attempt 3: CLI with default rate and pitch
-    try:
-        cmd_fallback = [
-            "edge-tts",
-            "--voice", v_voice,
-            "--text", clean_text,
-            "--write-media", str(filename),
-        ]
-        res = subprocess.run(cmd_fallback, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=25)
-        if res.returncode == 0 and filename.is_file() and filename.stat().st_size > 500:
-            duration = get_audio_duration_ffprobe(str(filename), ffprobe_bin)
-            logger.info(f"Scene {scene_index:03d} synthesized (CLI Fallback): {duration:.2f}s -> {filename.name}")
-            return scene_index, filename, duration
-    except Exception as e:
-        logger.error(f"TTS fallback failed for scene {scene_index}: {e}")
+    for voice_candidate in voices_to_try:
+        # Attempt 1: Native edge-tts Python API
+        try:
+            communicate = edge_tts.Communicate(
+                text=clean_text,
+                voice=voice_candidate,
+                rate=v_rate,
+                pitch=v_pitch,
+            )
+            await communicate.save(str(filename))
+            if filename.is_file() and filename.stat().st_size > 500:
+                duration = get_audio_duration_ffprobe(str(filename), ffprobe_bin)
+                logger.info(f"Scene {scene_index:03d} synthesized (API - {voice_candidate}): {duration:.2f}s -> {filename.name}")
+                return scene_index, filename, duration
+        except Exception as api_err:
+            logger.debug(f"Native TTS API call failed for scene {scene_index} with {voice_candidate}: {api_err}. Trying CLI...")
 
-    # Emergency fallback: generate minimal valid MP3 frame so pipeline continues
-    with open(filename, "wb") as f:
-        f.write(b"\xff\xfb\x90d\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" * 40)
-    return scene_index, filename, 3.0
+        # Attempt 2: Direct edge-tts CLI execution
+        try:
+            cmd = [
+                tts_bin,
+                "--voice", voice_candidate,
+                f"--rate={v_rate}",
+                f"--pitch={v_pitch}",
+                "--text", clean_text,
+                "--write-media", str(filename),
+            ]
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=25)
+            if res.returncode == 0 and filename.is_file() and filename.stat().st_size > 500:
+                duration = get_audio_duration_ffprobe(str(filename), ffprobe_bin)
+                logger.info(f"Scene {scene_index:03d} synthesized (CLI - {voice_candidate}): {duration:.2f}s -> {filename.name}")
+                return scene_index, filename, duration
+        except Exception as cli_err:
+            logger.warning(f"TTS CLI execution error for scene {scene_index} ({voice_candidate}): {cli_err}")
+
+        # Attempt 3: CLI with default rate and pitch
+        try:
+            cmd_fallback = [
+                tts_bin,
+                "--voice", voice_candidate,
+                "--text", clean_text,
+                "--write-media", str(filename),
+            ]
+            res = subprocess.run(cmd_fallback, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=25)
+            if res.returncode == 0 and filename.is_file() and filename.stat().st_size > 500:
+                duration = get_audio_duration_ffprobe(str(filename), ffprobe_bin)
+                logger.info(f"Scene {scene_index:03d} synthesized (CLI Fallback - {voice_candidate}): {duration:.2f}s -> {filename.name}")
+                return scene_index, filename, duration
+        except Exception as e:
+            logger.debug(f"TTS fallback failed for scene {scene_index} with {voice_candidate}: {e}")
+
+    # Emergency fallback: generate 100% valid silent MP3 via FFmpeg so video rendering never crashes
+    logger.warning(f"⚠️  All voice synthesizers failed for scene {scene_index}. Generating clean silent MP3 via FFmpeg.")
+    ffmpeg_bin = Config.FFMPEG_PATH or "ffmpeg"
+    cmd_silent = [
+        ffmpeg_bin,
+        "-y",
+        "-f", "lavfi",
+        "-i", "anullsrc=r=44100:cl=mono",
+        "-t", "4.0",
+        "-c:a", "libmp3lame",
+        "-b:a", "128k",
+        str(filename),
+    ]
+    subprocess.run(cmd_silent, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return scene_index, filename, 4.0
 
 
 async def generate_all_scene_audios(
