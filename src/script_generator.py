@@ -97,13 +97,33 @@ class DocumentaryScript(BaseModel):
 
 
 def _clean_json_response(raw_text: str) -> str:
-    """Extract and sanitize raw JSON from model response."""
+    """Extract, sanitize, and auto-repair raw JSON from model response."""
     text = raw_text.strip()
-    # Strip markdown code fence if present
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.MULTILINE)
         text = re.sub(r"\s*```$", "", text, flags=re.MULTILINE)
-    return text.strip()
+    text = text.strip()
+
+    # Fast path: already valid JSON
+    try:
+        json.loads(text)
+        return text
+    except Exception:
+        pass
+
+    # If cut off inside a string or array, find the last complete scene object '}'
+    last_brace = text.rfind("}")
+    if last_brace != -1:
+        truncated = text[:last_brace + 1].strip()
+        for suffix in ["]}", "}", "\n]}", "\n}"]:
+            try:
+                candidate = truncated + suffix
+                json.loads(candidate)
+                return candidate
+            except Exception:
+                continue
+
+    return text
 
 
 def build_system_prompt(language: str, target_scenes: int, genre: str = "documentary") -> str:
@@ -292,9 +312,10 @@ def generate_documentary_script(
             except Exception as e:
                 last_err = e
                 err_str = str(e).lower()
-                if ("429" in err_str or "503" in err_str or "quota" in err_str or "rate" in err_str) and attempt < 3:
+                is_daily_limit = any(w in err_str for w in ["day limit", "per day", "resource_exhausted", "quota exceeded"])
+                if not is_daily_limit and ("429" in err_str or "503" in err_str or "rate" in err_str) and attempt < 3:
                     wait_sec = attempt * 8
-                    logger.warning(f"Gemini API rate/capacity limit ({e}). Waiting {wait_sec}s before retry {attempt+1}/3...")
+                    logger.warning(f"Gemini API temporary rate limit ({e}). Waiting {wait_sec}s before retry {attempt+1}/3...")
                     time.sleep(wait_sec)
                 else:
                     raise e
@@ -302,6 +323,10 @@ def generate_documentary_script(
         logger.debug(f"google-genai SDK call did not succeed ({genai_err}), falling back to google-generativeai...")
         # Fallback to `google.generativeai` SDK
         try:
+            err_str_prev = str(genai_err).lower()
+            if any(w in err_str_prev for w in ["day limit", "per day", "resource_exhausted", "quota exceeded"]):
+                raise genai_err
+
             import google.generativeai as legacy_genai
             import time
 
@@ -319,7 +344,7 @@ def generate_documentary_script(
                         break
                 except Exception as e:
                     err_str = str(e).lower()
-                    if ("429" in err_str or "503" in err_str or "quota" in err_str) and attempt < 3:
+                    if ("429" in err_str or "503" in err_str) and not any(w in err_str for w in ["day limit", "per day"]) and attempt < 3:
                         time.sleep(attempt * 8)
                     else:
                         raise e

@@ -1,0 +1,101 @@
+{
+  "title": "AI Superpowers: How 1 Developer Now Builds What 100 Engineers Couldn't",
+  "description": "کیا آپ جانتے ہیں کہ وہ کام جس کے لیے پہلے 50 سافٹ ویئر انجینئرز کی ٹیم درکار ہوتی تھی، آج اکیلا ایک ڈویلپر اپنے لیپ ٹاپ پر چند گھنٹوں میں کر سکتا ہے؟ اس ویڈیو میں جانیے کہ AI کی وجہ سے آج کا ڈویلپر کیسے ایک سپر ہیومن بن چکا ہے اور 'ون پرسن ٹیک کمپنی' کا انقلاب کیا ہے۔\n\nاس ویڈیو میں جانیے:\n- کیسے AI ایجنٹس خود کوڈ لکھتے اور بگز فکس کرتے ہیں\n- سولو ڈویلپرز کیسے کروڑوں ڈالر کے سافٹ ویئر بنا رہے ہیں\n- اگر آپ کوڈنگ سیکھ رہے ہیں تو آپ کو اب کیا کرنا چاہیے؟\n\n#AIDevelopers #CodingWithAI #FutureOfCoding #ArtificialIntelligence #SoftwareEngineering #TechDocumentary #AhsanAI",
+  "tags": [
+    "ai for developers",
+    "future of coding",
+    "can ai replace developers",
+    "ai agents coding",
+    "solo developer ai",
+    "one person unicorn",
+    "coding in urdu",
+    "software engineer 2026",
+    "generative ai",
+    "tech awareness urdu"
+  ],
+  "thumbnail_prompt": "Cinematic documentary shot, a young developer sitting in a dark neon-lit glass room surrounded by multiple glowing holographic screens displaying complex code and glowing neural networks, a giant majestic AI cybernetic brain hovering above the desk, dramatic volumetric blue and amber lighting, 35mm film grain, 8k, photorealistic",
+  "thumbnail_text": "1 DEV = 100 ENGINEERS",
+  "variant_a": {
+    "title": "AI Superpowers: How 1 Developer Now Builds What 100 Engineers Couldn't",
+    "thumbnail_prompt": "Cinematic shot of lone programmer in neon server room, glowing cybernetic lines extending from fingertips to servers, 8k volumetric light",
+    "thumbnail_text": "THE NEW SUPERPOWER"
+  },
+  "variant_b": {
+    "title": "Will AI Replace Coders? What Developers Can Actually Do Now",
+    "thumbnail_prompt": "Split composition: on left, an old dusty office with 20 tired programmers; on right, one modern creator with futuristic AI assistant glowing in cyan",
+    "thumbnail_text": "STOP CODING BY HAND"
+  },
+  "variant_c": {
+    "title": "The 1-Person Billion Dollar Tech Company Is Here",
+    "thumbnail_prompt": "Dramatic macro close-up of developer eyes reflecting futuristic glowing code and AI prompts, high tension tech thriller lighting, 8k",
+    "thumbnail_text": "THE 2026 REVOLUTION"
+  },
+  "youtube_pinned_comment": "کیا آپ کو لگتا ہے کہ AI جابز ختم کرے گا یا ایک اکیلے ڈویلپر کو کمپنی بنانے کا موقع دے گا؟ اپنی رائے نیچے کمنٹس میں شیئر کریں! 👇💡",
+  "facebook_post": "💡 کیا آپ جانتے ہیں کہ AI نے پروگرامنگ کا پورا کھیل بدل دیا ہے؟ جو سافٹ ویئر پہلے مہینوں میں بنتا تھا، اب اکیلا ڈویلپر گھنٹوں میں تیار کر سکتا ہے۔ جانیے 2026 کے ڈویلپرز کی اصل طاقت اس مختصر سنسنی خیز ویڈیو میں! 👇",
+  "twitter_thread": [
+    "1/5 A massive shift has quietly happened in software engineering. One developer can now build what previously required a 50-person engineering department.",
+    "2/5 Autonomous AI agents now write boilerplate, architect databases, test edge cases, and deploy cloud infrastructure from a single prompt.",
+    "3/5 The 'One-Person Unicorn' is no longer science fiction—it's actively happening in 2026.",
+    "4/5 The advice for beginners: Stop memorizing syntax. Start mastering problem breakdown and AI orchestration.",
+    "5/5 Watch our full investigative breakdown on the developer AI superpower here! 🚀"
+  ],
+  "telegram_post": "🚀 **AI SUPERPOWERS FOR DEVELOPERS: AWARENESS DOCUMENTARY**\n\n- How 1 developer does the work of 100 engineers\n- The rise of Autonomous Coding Agents\n- What you must learn today to stay ahead\n\nWatch the full video now!",
+  "scenes": [
+    {
+      "speaker": "Narrator",
+      "voice_gender": "male",
+      "narration": "کیا آپ جانتے ہیں کہ وہ کام جس کے لیے پہلے پچاس سافٹ ویئر انجینئرز کی ٹیم درکار ہوتی تھی، آج اکیلا ایک ڈویلپر اپنے لیپ ٹاپ پر چند گھنٹوں میں کر سکتا ہے؟",
+      "image_prompt": "Cinematic wide angle shot of a lone software developer sitting in a dark modern office at midnight, illuminated by four ultrawide glowing monitors showing lines of code, volumetric blue neon rim lighting, 35mm documentary film grain, 8k, photorealistic",
+      "on_screen_text": "1 DEVELOPER = 50 ENGINEERS?",
+      "is_hook_clip": true
+    },
+    {
+      "speaker": "Narrator",
+      "voice_gender": "male",
+      "narration": "ماضی میں ایک مکمل ویب سائٹ یا موبائل ایپ بنانے میں مہینوں لگتے تھے۔ ڈیٹا بیس ڈیزائن، بیک اینڈ، فرنٹ اینڈ... ہر چیز سکرَیچ سے لکھنی پڑتی تھی۔",
+      "image_prompt": "Vintage forensic archive documentary style split shot showing an overcrowded corporate server office from 2010 with exhausted programmers buried in paper manuals and tangled server cables, desaturated moody lighting, 8k, photorealistic",
+      "on_screen_text": "THE OLD WAY: MONTHS OF WORK",
+      "is_hook_clip": true
+    },
+    {
+      "speaker": "Narrator",
+      "voice_gender": "male",
+      "narration": "لیکن آج، آرٹیفیشل انٹیلی جنس نے پروگرامنگ کا پورا نقشہ بدل دیا ہے۔ اب ڈویلپر صرف ایک آئیڈیا سوچتا ہے، اور AI خود کوڈ لکھتا ہے اور بگز فکس کرتا ہے۔",
+      "image_prompt": "Hyper-realistic close-up of fingers typing on a mechanical keyboard, while streams of glowing golden and cyan code automatically write themselves across transparent floating holographic glass screens, dark tech aesthetic, 8k",
+      "on_screen_text": "AI WRITES & DEBUGS CODE",
+      "is_hook_clip": true
+    },
+    {
+      "speaker": "Narrator",
+      "voice_gender": "male",
+      "narration": "آج ایک سولو ڈویلپر مکمل خود مختار AI ایجنٹس بنا سکتا ہے جو کسٹمر سپورٹ چلاتے ہیں، ڈیٹا انالیسس کرتے ہیں، اور یوٹیوب پر ویڈیوز تک خود بنا کر پوسٹ کرتے ہیں۔",
+      "image_prompt": "Futuristic control center with autonomous AI agents visualized as glowing digital neural nodes interacting seamlessly with cloud servers and mobile apps, sleek dark glass architecture, volumetric fog, cinematic lighting, 8k",
+      "on_screen_text": "AUTONOMOUS AI AGENTS IN ACTION",
+      "is_hook_clip": false
+    },
+    {
+      "speaker": "Narrator",
+      "voice_gender": "male",
+      "narration": "سلیکون ویلی میں اب 'ون پرسن یونی کارن' کا دور شروع ہو چکا ہے۔ یعنی ایک اکیلا انسان AI کی مدد سے کروڑوں ڈالر کی ٹیک کمپنی اکیلے چلا رہا ہے۔",
+      "image_prompt": "Dramatic low-angle cinematic shot of a young confident founder standing on the balcony of a modern skyscraper overlooking Silicon Valley at twilight, digital market graphs and billion dollar valuation charts floating in the sky, 8k, photorealistic",
+      "on_screen_text": "THE $1 BILLION SOLO FOUNDER",
+      "is_hook_clip": false
+    },
+    {
+      "speaker": "Narrator",
+      "voice_gender": "male",
+      "narration": "مگر یاد رکھیے، AI ڈویلپرز کو ختم نہیں کر رہا، بلکہ جو ڈویلپر AI استعمال کر رہا ہے، وہ روایتی ڈویلپرز کو پیچھے چھوڑ رہا ہے۔",
+      "image_prompt": "Powerful symbolic split frame: on the left, an old programmer staring blankly at a compiler error screen; on the right, an AI-empowered developer creating an entire digital ecosystem with a smile, dramatic chiaroscuro contrast, 8k",
+      "on_screen_text": "AI WON'T REPLACE YOU — USERS OF AI WILL",
+      "is_hook_clip": false
+    },
+    {
+      "speaker": "Narrator",
+      "voice_gender": "male",
+      "narration": "اگر آپ کوڈنگ سیکھ رہے ہیں، تو اب رٹا مت ماریے، بلکہ AI کو کمانڈ کرنا سیکھیے۔ کیا آپ اس نئے انقلاب کے لیے تیار ہیں؟",
+      "image_prompt": "Epic inspirational hero shot, silhouette of a creator looking toward a glowing digital horizon with futuristic interconnected cyber towers and glowing fiber-optic constellations, cinematic lens flare, high contrast, 8k masterpiece",
+      "on_screen_text": "ARE YOU READY FOR THE REVOLUTION?",
+      "is_hook_clip": false
+    }
+  ]
+}
