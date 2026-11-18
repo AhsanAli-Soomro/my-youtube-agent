@@ -180,12 +180,28 @@ async def generate_all_scene_audios(
     semaphore = asyncio.Semaphore(2)  # Microsoft Edge TTS prefers <= 2 concurrent streams
 
     async def _worker(idx: int, scene: Scene):
+        # Auto-detect voice based on character gender for multi-character movies
+        gender = getattr(scene, "voice_gender", "").lower()
+        speaker = getattr(scene, "speaker", "").lower()
+        base_voice = voice or Config.VOICE_NAME
+
+        is_female = gender == "female" or any(w in speaker for w in ["mother", "elena", "woman", "girl", "queen", "lady", "aurat"])
+        is_male = gender == "male" or any(w in speaker for w in ["hunter", "priest", "man", "king", "warrior", "boros", "kael", "thorne", "captain"])
+
+        if "en-" in base_voice.lower():
+            char_voice = "en-US-JennyNeural" if is_female else ("en-US-GuyNeural" if is_male else base_voice)
+        elif "hi-" in base_voice.lower():
+            char_voice = "hi-IN-SwaraNeural" if is_female else ("hi-IN-MadhurNeural" if is_male else base_voice)
+        else:
+            # Default Urdu
+            char_voice = "ur-PK-UzmaNeural" if is_female else ("ur-IN-SalmanNeural" if is_male else base_voice)
+
         async with semaphore:
             res = await synthesize_scene_audio(
                 scene_index=idx,
                 narration=scene.narration,
                 output_dir=output_dir,
-                voice=voice,
+                voice=char_voice,
                 rate=rate,
                 pitch=pitch,
             )
@@ -196,12 +212,6 @@ async def generate_all_scene_audios(
     results = await asyncio.gather(*tasks)
 
     results.sort(key=lambda x: x[0])
-    total_audio_length = sum(r[2] for r in results)
-    logger.info(
-        f"Total audio synthesized for {len(results)} scenes: {total_audio_length:.1f} seconds "
-        f"({total_audio_length / 60:.2f} minutes)."
-    )
-    return results
     total_audio_length = sum(r[2] for r in results)
     logger.info(
         f"Total audio synthesized for {len(results)} scenes: {total_audio_length:.1f} seconds "

@@ -17,19 +17,27 @@ logger = logging.getLogger("youtube_agent.script")
 class Scene(BaseModel):
     narration: str = Field(
         ...,
-        description="Engaging spoken narration in the requested language (Urdu/Hindi script or English), ~5-8 seconds of speech.",
+        description="Spoken character dialogue in first person (or dramatic narration) in authentic Urdu script, ~5-8 seconds of speech.",
+    )
+    speaker: str = Field(
+        default="Narrator",
+        description="Name of the character speaking the line (e.g. 'Elena (Mother)', 'Captain Boros', 'Elder Kael', 'Narrator').",
+    )
+    voice_gender: str = Field(
+        default="male",
+        description="'female' for women / mothers; 'male' for men / warriors / elders.",
     )
     image_prompt: str = Field(
         ...,
-        description="Detailed cinematic, dark-moody, hyper-realistic documentary illustration prompt in English (16:9).",
+        description="Detailed cinematic, dark-moody, hyper-realistic movie shot illustration prompt in English (16:9).",
     )
     on_screen_text: str = Field(
         ...,
-        description="Short key date, location, or highlight phrase (2-5 words) to overlay on screen.",
+        description="Movie dialogue subtitle format with speaker label (e.g. 'ELENA: پیچھے ہٹ جاؤ! یہ میرا بچہ ہے!').",
     )
     is_hook_clip: bool = Field(
         default=False,
-        description="Set to true for the 3-4 consecutive scenes (~30-45s total) that contain the most intense mystery hook to repurpose as a vertical teaser Short.",
+        description="Set to true for the 3-4 consecutive scenes (~30-45s total) that contain the most intense dramatic climax for a vertical teaser Short.",
     )
 
 
@@ -125,15 +133,23 @@ def build_system_prompt(language: str, target_scenes: int, genre: str = "documen
 
     if genre in ("film", "story", "movie"):
         role_description = (
-            "You are an elite Hollywood Dark Fantasy & Cinematic Story Film Director (style: Guillermo del Toro, Denis Villeneuve, and 'Tales of the Underworld').\n"
-            "Your goal is to transform the premise into an emotionally gripping, suspenseful fictional cinematic narrative film with character arcs, dialogue, visceral world-building, and high-retention pacing."
+            "You are an elite Hollywood Cinematic Movie Screenwriter and Director (style: Game of Thrones, Guillermo del Toro, Denis Villeneuve, 'Tales of the Underworld').\n"
+            "CRITICAL REQUIREMENT (DO NOT WRITE A DOCUMENTARY OR THIRD-PERSON NARRATOR SCRIPT!):\n"
+            "- This is a DRAMATIC FEATURE FILM with CHARACTERS SPEAKING TO EACH OTHER IN FIRST-PERSON DIALOGUES!\n"
+            "- Define at least 2 contrasting main characters: e.g. A female protagonist (Mother/Protector) and an antagonist/opposing force (Hunter, Priest, or Inquisitor).\n"
+            "- Each scene must have:\n"
+            "  * `speaker`: Character's name (e.g. 'Elena (Mother)', 'Captain Boros', 'Elder Kael').\n"
+            "  * `voice_gender`: 'female' for women; 'male' for men.\n"
+            "  * `narration`: The exact spoken dialogue in first-person Urdu script (e.g. 'پیچھے ہٹ جاؤ! یہ میرا بچہ ہے، تم اسے ہاتھ نہیں لگا سکتے!').\n"
+            "  * `on_screen_text`: Movie subtitle format: '[SPEAKER]: \"[Urdu Dialogue]\"' (e.g. 'ELENA: پیچھے ہٹ جاؤ! یہ میرا بچہ ہے!').\n"
+            "  * `image_prompt`: A cinematic movie shot of that character performing that action (e.g. 'Close-up shot of Elena, medieval mother weeping with bloodshot eyes holding baby dragon in her arms, flames in background, 35mm film, cinematic lighting, 8k, photorealistic')."
         )
         structure_guidelines = f"""
-CINEMATIC FILM STRUCTURE & PACING:
-1. Target Scene Count: Exactly {target_scenes} scenes (~6 to 8 seconds of narration or character dialogue per scene).
-2. ACT 1 - The Inciting Incident & Secret (Scenes 1 to {int(target_scenes * 0.3)}): Establish the tragic protagonist, the ancient curse, or the forbidden ritual, ending with the terrifying birth or discovery.
-3. ACT 2 - The Rising Horror & Maternal Bond (Scenes {int(target_scenes * 0.3) + 1} to {int(target_scenes * 0.7)}): The creature grows, the mother tries desperately to protect it from the suspicious villagers or hunters, and tension escalates.
-4. ACT 3 - The Climax & Final Sacrifice (Scenes {int(target_scenes * 0.7) + 1} to {target_scenes}): The confrontation erupts. Flames, heartbreak, blood, and a deeply emotional twist ending that haunts the viewer.
+CINEMATIC MOVIE STRUCTURE & CHARACTER ARCS:
+1. Target Scene Count: Exactly {target_scenes} scenes (~6 to 8 seconds of dialogue per scene).
+2. ACT 1 - The Confrontation Begins (Scenes 1 to {int(target_scenes * 0.3)}): Start directly with high tension. Characters exchanging desperate words.
+3. ACT 2 - Escalating Conflict & Threats (Scenes {int(target_scenes * 0.3) + 1} to {int(target_scenes * 0.7)}): Opposing characters arguing, weapons drawn, fear turning into rage.
+4. ACT 3 - The Climax & Heartbreaking Resolution (Scenes {int(target_scenes * 0.7) + 1} to {target_scenes}): The final ultimatum, a shocking action, and tragic ending lines that leave the audience stunned.
 
 VISUAL PROMPT GUIDELINES (`image_prompt`):
 - Describe dynamic cinematography for video generation (e.g. 'Tracking dolly shot, close-up of mother's tearful face, tiny dragon with glowing obsidian scales curled in her arms breathing blue flame, dark fantasy chiaroscuro lighting, 8k, photorealistic').
@@ -198,9 +214,11 @@ Return a single, strictly valid JSON object matching this exact schema:
   "telegram_post": "Formatted announcement with bold title, mystery summary bullet points, and CTA for Telegram broadcast channel.",
   "scenes": [
     {{
-      "narration": "Narration text for this 5-8s clip in the target language script",
-      "image_prompt": "Cinematic 16:9 visual prompt in English",
-      "on_screen_text": "Date / Location / Key Phrase (2-4 words)",
+      "speaker": "Name of character speaking (e.g. 'Elena (Mother)' or 'Commander Thorne')",
+      "voice_gender": "'female' for female character, 'male' for male character",
+      "narration": "Spoken dialogue in target language (first-person speech if film/movie, e.g. 'تم اسے ہاتھ نہیں لگا سکتے!')",
+      "image_prompt": "Cinematic 16:9 visual prompt in English describing character action and emotion",
+      "on_screen_text": "Movie subtitle format: '[SPEAKER]: [Dialogue]' (or key highlight phrase for documentary)",
       "is_hook_clip": true
     }}
   ]
@@ -248,28 +266,44 @@ def generate_documentary_script(
     logger.info(f"Requesting {label} script from Gemini ({model}) for topic: '{topic}'...")
 
     raw_response_text = ""
+    last_err = None
 
-    # Attempt using new `google-genai` SDK first
+    # Attempt using new `google-genai` SDK first with exponential backoff retry
     try:
         from google import genai
         from google.genai import types
+        import time
 
         client = genai.Client(api_key=key)
-        response = client.models.generate_content(
-            model=model,
-            contents=[types.Content(role="user", parts=[types.Part.from_text(text=user_prompt)])],
-            config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
-                temperature=0.7,
-                response_mime_type="application/json",
-            ),
-        )
-        raw_response_text = response.text or ""
-    except (ImportError, Exception) as genai_err:
+        for attempt in range(1, 4):
+            try:
+                response = client.models.generate_content(
+                    model=model,
+                    contents=[types.Content(role="user", parts=[types.Part.from_text(text=user_prompt)])],
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        temperature=0.7,
+                        response_mime_type="application/json",
+                    ),
+                )
+                raw_response_text = response.text or ""
+                if raw_response_text:
+                    break
+            except Exception as e:
+                last_err = e
+                err_str = str(e).lower()
+                if ("429" in err_str or "503" in err_str or "quota" in err_str or "rate" in err_str) and attempt < 3:
+                    wait_sec = attempt * 8
+                    logger.warning(f"Gemini API rate/capacity limit ({e}). Waiting {wait_sec}s before retry {attempt+1}/3...")
+                    time.sleep(wait_sec)
+                else:
+                    raise e
+    except Exception as genai_err:
         logger.debug(f"google-genai SDK call did not succeed ({genai_err}), falling back to google-generativeai...")
         # Fallback to `google.generativeai` SDK
         try:
             import google.generativeai as legacy_genai
+            import time
 
             legacy_genai.configure(api_key=key)
             gen_model = legacy_genai.GenerativeModel(
@@ -277,8 +311,18 @@ def generate_documentary_script(
                 system_instruction=system_prompt,
                 generation_config={"response_mime_type": "application/json", "temperature": 0.7},
             )
-            resp = gen_model.generate_content(user_prompt)
-            raw_response_text = resp.text or ""
+            for attempt in range(1, 4):
+                try:
+                    resp = gen_model.generate_content(user_prompt)
+                    raw_response_text = resp.text or ""
+                    if raw_response_text:
+                        break
+                except Exception as e:
+                    err_str = str(e).lower()
+                    if ("429" in err_str or "503" in err_str or "quota" in err_str) and attempt < 3:
+                        time.sleep(attempt * 8)
+                    else:
+                        raise e
         except Exception as legacy_err:
             raise RuntimeError(
                 f"Failed to generate script using Gemini API. Errors encountered:\n"

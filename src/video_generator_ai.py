@@ -224,10 +224,10 @@ def _render_motion_clip_from_image(
     x_expr = f"(iw-iw/zoom)/2 + 20*sin(on/25)"
     y_expr = f"(ih-ih/zoom)/2 + 10*cos(on/25)"
 
+    # With zoompan, a single image frame repeats internally up to d=total_frames.
+    # Do NOT pass '-loop 1' before -i because that multiplies frames indefinitely.
     cmd = [
         binary, "-y",
-        "-loop", "1",
-        "-t", f"{duration:.2f}",
         "-i", str(image_path),
         "-vf", (
             f"scale=3840:2160:force_original_aspect_ratio=increase,crop=3840:2160,"
@@ -237,6 +237,7 @@ def _render_motion_clip_from_image(
         "-c:v", "libx264",
         "-preset", "veryfast",
         "-pix_fmt", "yuv420p",
+        "-t", f"{duration:.2f}",
         str(output_path),
     ]
     subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

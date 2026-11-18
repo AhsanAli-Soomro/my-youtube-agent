@@ -235,7 +235,10 @@ def run_pipeline(
     hook_scene_items = []
     movie_clips_dir = project_dir / "movie_clips"
 
-    if v_mode in ("cloud_movie", "local_movie"):
+    has_cloud_keys = bool(Config.FAL_KEY or Config.REPLICATE_API_TOKEN)
+    use_ai_video_clips = (v_mode == "cloud_movie" and has_cloud_keys) or (v_mode == "local_movie" and hw["can_run_local_movie"])
+
+    if use_ai_video_clips:
         movie_clips_dir.mkdir(parents=True, exist_ok=True)
         print(f"\n🎬 [AI Video Generation: {v_mode.upper()}] Synthesizing moving video clips...")
         for i, scene in enumerate(script.scenes):
@@ -259,11 +262,20 @@ def run_pipeline(
                     image_path=ref_img,
                     duration_seconds=int(round(dur)),
                 )
+    else:
+        if v_mode in ("cloud_movie", "local_movie"):
+            print("\n💡 [Video Production Notice] Cloud AI Video API keys (FAL_KEY/REPLICATE_API_TOKEN) not set.")
+            print("   Using high-definition 1080p visual cinematography with zero black frames.")
 
     print("\n🎥 Rendering Main 16:9 Master Video...")
     for i, scene in enumerate(script.scenes):
         idx = i + 1
-        visual_p = (movie_clips_dir / f"scene_{idx:03d}.mp4") if v_mode in ("cloud_movie", "local_movie") else (images_dir / f"scene_{idx:03d}.jpg")
+        clip_file = movie_clips_dir / f"scene_{idx:03d}.mp4"
+        if use_ai_video_clips and clip_file.is_file() and clip_file.stat().st_size > 10000:
+            visual_p = clip_file
+        else:
+            visual_p = images_dir / f"scene_{idx:03d}.jpg"
+
         aud_p = audio_dir / f"scene_{idx:03d}.mp3"
         dur = audio_results[i][2]
         item = (idx, visual_p, aud_p, dur, scene.on_screen_text)
