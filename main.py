@@ -62,6 +62,7 @@ def run_pipeline(
     custom_output_dir: Path = None,
     skip_upload: bool = False,
     skip_marketing: bool = False,
+    script_file: str = None,
 ):
     start_time = time.time()
     print_banner()
@@ -105,18 +106,24 @@ def run_pipeline(
     logger.info(f"⚙️  Dry Run Mode:     {dry_run}")
 
     # =========================================================================
-    # STEP 1: Script, SEO & Marketing Copy (Google Gemini Free API)
+    # STEP 1: Script, SEO & Marketing Copy
     # =========================================================================
     print("\n" + "=" * 65)
     print(f"📜 STEP 1: Generating Script, SEO & Social Marketing Copy ({v_genre.upper()})...")
     print("=" * 65)
 
-    script: DocumentaryScript = generate_documentary_script(
-        topic=topic,
-        duration_minutes=duration_minutes,
-        language=language,
-        genre=v_genre,
-    )
+    if script_file and Path(script_file).is_file():
+        print(f"📂 Loading existing script from: {script_file}")
+        with open(script_file, "r", encoding="utf-8") as f:
+            script_data = json.load(f)
+        script = DocumentaryScript.model_validate(script_data)
+    else:
+        script = generate_documentary_script(
+            topic=topic,
+            duration_minutes=duration_minutes,
+            language=language,
+            genre=v_genre,
+        )
 
     metadata_file = project_dir / "metadata.json"
     with open(metadata_file, "w", encoding="utf-8") as f:
@@ -488,6 +495,12 @@ def parse_arguments():
         help="Run Module A: Fetch real-time Google/Reddit trends, filter with Gemini, and prepend to topics.txt",
     )
     parser.add_argument(
+        "--script-file",
+        type=str,
+        default=None,
+        help="Path to an existing script JSON file (bypasses script generation)",
+    )
+    parser.add_argument(
         "--optimize-ab",
         action="store_true",
         help="Run Module B: Check 6-72hr old videos and swap underperforming titles/thumbnails to untested A/B variants",
@@ -519,4 +532,5 @@ if __name__ == "__main__":
         custom_output_dir=custom_out,
         skip_upload=args.skip_upload,
         skip_marketing=args.skip_marketing,
+        script_file=args.script_file,
     )

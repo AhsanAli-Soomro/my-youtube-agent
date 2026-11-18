@@ -324,11 +324,34 @@ def generate_documentary_script(
                     else:
                         raise e
         except Exception as legacy_err:
-            raise RuntimeError(
-                f"Failed to generate script using Gemini API. Errors encountered:\n"
-                f"SDK 1 error: {genai_err}\n"
-                f"SDK 2 error: {legacy_err}"
-            ) from legacy_err
+            logger.warning(
+                f"⚠️ Gemini API quota / capacity reached ({legacy_err}).\n"
+                f"🔄 Auto-routing to 100% Free Pollinations.ai AI Engine (Zero Rate Limit)..."
+            )
+            try:
+                import httpx
+                resp = httpx.post(
+                    "https://text.pollinations.ai/openai",
+                    json={
+                        "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        "model": "openai",
+                        "jsonMode": True,
+                    },
+                    timeout=90.0,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                raw_response_text = data["choices"][0]["message"]["content"]
+                logger.info("✅ Script successfully generated via 100% Free Pollinations Engine!")
+            except Exception as poll_err:
+                raise RuntimeError(
+                    f"Failed to generate script with Gemini and Pollinations fallback:\n"
+                    f"Gemini error: {legacy_err}\n"
+                    f"Pollinations error: {poll_err}"
+                ) from poll_err
 
     cleaned_json = _clean_json_response(raw_response_text)
 

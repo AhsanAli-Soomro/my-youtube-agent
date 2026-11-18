@@ -101,21 +101,23 @@ async def synthesize_scene_audio(
     tts_bin = _find_edge_tts_bin()
 
     for voice_candidate in voices_to_try:
-        # Attempt 1: Native edge-tts Python API
-        try:
-            communicate = edge_tts.Communicate(
-                text=clean_text,
-                voice=voice_candidate,
-                rate=v_rate,
-                pitch=v_pitch,
-            )
-            await communicate.save(str(filename))
-            if filename.is_file() and filename.stat().st_size > 500:
-                duration = get_audio_duration_ffprobe(str(filename), ffprobe_bin)
-                logger.info(f"Scene {scene_index:03d} synthesized (API - {voice_candidate}): {duration:.2f}s -> {filename.name}")
-                return scene_index, filename, duration
-        except Exception as api_err:
-            logger.debug(f"Native TTS API call failed for scene {scene_index} with {voice_candidate}: {api_err}. Trying CLI...")
+        # Attempt 1: Native edge-tts Python API (with pitch, and fallback without pitch)
+        pitches_to_try = [v_pitch] if v_pitch == "+0Hz" else [v_pitch, "+0Hz"]
+        for p_val in pitches_to_try:
+            try:
+                communicate = edge_tts.Communicate(
+                    text=clean_text,
+                    voice=voice_candidate,
+                    rate=v_rate,
+                    pitch=p_val,
+                )
+                await communicate.save(str(filename))
+                if filename.is_file() and filename.stat().st_size > 500:
+                    duration = get_audio_duration_ffprobe(str(filename), ffprobe_bin)
+                    logger.info(f"Scene {scene_index:03d} synthesized (API - {voice_candidate}): {duration:.2f}s -> {filename.name}")
+                    return scene_index, filename, duration
+            except Exception as api_err:
+                logger.debug(f"Native TTS API call failed for scene {scene_index} with {voice_candidate} (pitch={p_val}): {api_err}")
 
         # Attempt 2: Direct edge-tts CLI execution
         try:
@@ -196,6 +198,8 @@ async def generate_all_scene_audios(
             # Default Urdu
             char_voice = "ur-PK-UzmaNeural" if is_female else ("ur-IN-SalmanNeural" if is_male else base_voice)
 
+        char_pitch = "+0Hz" if is_female else pitch
+
         async with semaphore:
             res = await synthesize_scene_audio(
                 scene_index=idx,
@@ -203,7 +207,7 @@ async def generate_all_scene_audios(
                 output_dir=output_dir,
                 voice=char_voice,
                 rate=rate,
-                pitch=pitch,
+                pitch=char_pitch,
             )
             await asyncio.sleep(0.3)
             return res

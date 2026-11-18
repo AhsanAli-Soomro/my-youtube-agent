@@ -1,0 +1,116 @@
+{
+  "title": "The Cursed Mother: Blood of the Dragon",
+  "description": "ایک تاریک رات میں جب کمانڈر بورس نے ایک ماں سے اس کے نومولود ڈریگن بچے کو چھیننے کی کوشش کی، تو ممتا نے ایک بھیانک انتقام کا روپ دھار لیا۔ کیا ماں اپنے بچے کو بچا پائی یا ڈریگن کی آگ نے پوری سلطنت کو راکھ کر دیا؟ دیکھیے یہ سنسنی خیز سینماٹک شارٹ فلم۔\n\nاس فلم میں دیکھیے ایک ماں اور وحشی شکاریوں کے درمیان لائیو مکالمے اور جذباتی جنگ۔\n\n#TheCursedMother #DragonBaby #DarkFantasy #UrduMovie #CinematicFilm",
+  "tags": [
+    "dark fantasy film urdu",
+    "dragon baby",
+    "mother of dragons",
+    "cinematic urdu movie",
+    "fantasy story",
+    "she gave birth to a dragon",
+    "cursed womb",
+    "hollywood style urdu film",
+    "dragon film",
+    "ahsan ai agent"
+  ],
+  "thumbnail_prompt": "Cinematic movie poster, close-up of a weeping medieval mother Elena with blazing blue dragon fire in her eyes, holding a tiny obsidian-scaled baby dragon with glowing embers, ruthless hunter with iron helmet in background, 35mm dark fantasy film grain, chiaroscuro lighting, 8k, photorealistic",
+  "thumbnail_text": "DON'T TOUCH MY CHILD",
+  "variant_a": {
+    "title": "The Cursed Mother: Blood of the Dragon",
+    "thumbnail_prompt": "Cinematic shot of fierce mother protecting glowing baby dragon from knights with spears, volumetric dark mist, golden cinematic glow, 8k",
+    "thumbnail_text": "MY DRAGON SON"
+  },
+  "variant_b": {
+    "title": "She Gave Birth to a Monster: The Dragon's Vow",
+    "thumbnail_prompt": "High drama split frame: weeping mother face on left, ruthless commander with bloody broadsword on right, blue flames in center",
+    "thumbnail_text": "KILL THE BEAST"
+  },
+  "variant_c": {
+    "title": "The Mother Who Burned a Kingdom for Her Child",
+    "thumbnail_prompt": "Dark fantasy throne room engulfed in sapphire dragon fire, shadow of a mother and flying young dragon, silhouette, 8k",
+    "thumbnail_text": "ASHES OF EMPIRE"
+  },
+  "youtube_pinned_comment": "کیا ایلینا نے اپنے ڈریگن بچے کو بچا کر ٹھیک کیا، یا کمانڈر بورس کا ڈر سچ تھا؟ اپنی رائے نیچے کمنٹس میں بتائیں! 👇🔥",
+  "facebook_post": "🔥 ایک ماں کی ممتا یا ایک سلطنت کی بربادی؟ جب کمانڈر بورس نے ایلینا سے اس کے پراسرار ڈریگن بچے کو چھیننا چاہا، تو جو ہوا اس نے تاریخ بدل دی۔ دیکھیے یہ مکمل شارٹ سینماٹک فلم! 👇",
+  "twitter_thread": [
+    "1/4 In the dead of winter, Elena gave birth to what the kingdom called a 'monster'—a creature of obsidian scales and blue flame.",
+    "2/4 Commander Boros and the royal inquisitors surrounded the chapel. Hand over the beast, or burn.",
+    "3/4 But a mother's vow is stronger than iron blades. When the first spear was thrown, the creature awoke.",
+    "4/4 Watch the full cinematic dark fantasy short film: 'The Cursed Mother: Blood of the Dragon' now!"
+  ],
+  "telegram_post": "🎬 **NEW CINEMATIC MOVIE RELEASE**\n\n**The Cursed Mother: Blood of the Dragon**\n\n- Elena (Mother) vs Commander Boros\n- Multi-character voice acting & first-person dialogues\n- 100% full 1080p cinematic visuals with zero black screens\n\nWatch now on YouTube!",
+  "scenes": [
+    {
+      "speaker": "Commander Boros",
+      "voice_gender": "male",
+      "narration": "پیچھے ہٹ جاؤ، عورت! اس بلا کو میرے حوالے کرو، ورنہ یہ آگ تمہارے ساتھ اس پورے شہر کو نگل جائے گی!",
+      "image_prompt": "Low-angle cinematic tracking shot of Commander Boros, brutal scarred medieval knight in black wrought-iron armor holding a flaming iron brand and heavy broadsword, angry sneering expression, torches and soldiers behind him in foggy stone chapel, volumetric smoke, 35mm film, dark moody fantasy, photorealistic, 8k",
+      "on_screen_text": "BOROS: پیچھے ہٹ جاؤ، عورت! اس بلا کو میرے حوالے کرو!",
+      "is_hook_clip": true
+    },
+    {
+      "speaker": "Elena (Mother)",
+      "voice_gender": "female",
+      "narration": "ہرگز نہیں، بورس! یہ کوئی بلا نہیں، یہ میرا بچہ ہے! میں مر جاؤں گی لیکن اسے تمہاری وحشت کی بھینٹ نہیں چڑھنے دوں گی!",
+      "image_prompt": "Extreme close-up of Elena, young medieval mother with disheveled dark hair and tear-streaked dirt-smudged face, eyes wide with desperate maternal fury, cradling a tiny obsidian-scaled baby dragon wrapped in embroidered cloth, soft ethereal blue glow radiating from the baby's scales, chiaroscuro lighting, photorealistic, 8k",
+      "on_screen_text": "ELENA: ہرگز نہیں، بورس! یہ کوئی بلا نہیں، یہ میرا بچہ ہے!",
+      "is_hook_clip": true
+    },
+    {
+      "speaker": "Commander Boros",
+      "voice_gender": "male",
+      "narration": "تم پاگل ہو چکی ہو ایلینا! غور سے دیکھو اسے، اس کی رگوں میں انسان کا نہیں، ایک آدم خور ڈریگن کا کالا خون دوڑ رہا ہے!",
+      "image_prompt": "Medium close-up shot of Commander Boros pointing his heavy steel gauntlet fiercely forward, harsh flickering torchlight casting deep jagged shadows across his weathered face and iron breastplate, soldiers raising spears behind him, cinematic 35mm dark fantasy film, 8k",
+      "on_screen_text": "BOROS: اس کی رگوں میں ایک آدم خور ڈریگن کا خون دوڑ رہا ہے!",
+      "is_hook_clip": true
+    },
+    {
+      "speaker": "Elena (Mother)",
+      "voice_gender": "female",
+      "narration": "اور وہی خون اب میری رگوں میں بھی ابل رہا ہے! دیکھو اس معصوم کو، کیا تمہیں اس میں صرف موت نظر آتی ہے؟",
+      "image_prompt": "Over-the-shoulder shot from behind Boros looking at Elena, Elena kneeling protectively over the baby dragon, the tiny creature opening golden reptilian slit eyes and breathing a tiny puff of azure smoke, intense emotional confrontation, dramatic rim lighting, photorealistic, 8k",
+      "on_screen_text": "ELENA: اور وہی خون اب میری رگوں میں بھی ابل رہا ہے!",
+      "is_hook_clip": true
+    },
+    {
+      "speaker": "Commander Boros",
+      "voice_gender": "male",
+      "narration": "سپاہیو! نیزے تان لو! اس سے پہلے کہ یہ شیطانی شعلے جوان ہوں، ان دونوں کو اسی فرش پر دفن کر دو!",
+      "image_prompt": "Wide dynamic angle of five heavily armored royal inquisitor guards leveling steel halberds and spears directly at the mother, reflections of cold metal in rain and torchlight, wet cobblestone courtyard, dark atmospheric fantasy epic, Denis Villeneuve style, 8k",
+      "on_screen_text": "BOROS: سپاہیو! نیزے تان لو! ان دونوں کو ختم کر دو!",
+      "is_hook_clip": false
+    },
+    {
+      "speaker": "Elena (Mother)",
+      "voice_gender": "female",
+      "narration": "خبردار! اگر کسی نے ایک قدم بھی آگے بڑھایا، تو قسم ہے خدا کی، اس مقدس زمین پر تمہاری ہڈیوں کی راکھ بھی نہیں بچے گی!",
+      "image_prompt": "Dramatic medium shot of Elena standing up tall with trembling hands, veins in her neck glowing with faint sapphire magical heat, a defiant lethal gaze, wind blowing her hair and tattered dress, sparks swirling in the air, 35mm film grain, 8k photorealistic",
+      "on_screen_text": "ELENA: خبردار! اگر کسی نے ایک قدم بھی آگے بڑھایا!",
+      "is_hook_clip": false
+    },
+    {
+      "speaker": "Commander Boros",
+      "voice_gender": "male",
+      "narration": "تمہاری یہ مامتا ہی تمہارا کفن بنے گی، بدقسمت عورت! حملہ کرو!",
+      "image_prompt": "Action close-up of Commander Boros charging forward swinging a two-handed heavy iron broadsword, veins bulging on his forehead, terrifying battle cry expression, sparks flying from stone walls, dark fantasy cinematic action shot, 8k",
+      "on_screen_text": "BOROS: تمہاری یہ مامتا ہی تمہارا کفن بنے گی! حملہ کرو!",
+      "is_hook_clip": false
+    },
+    {
+      "speaker": "Elena (Mother)",
+      "voice_gender": "female",
+      "narration": "میری مامتا اب تمہارا قہر بنے گی! جاگو، میرے بچے... ان پر اپنی ازلی آگ برسا دو!",
+      "image_prompt": "Climactic hero shot of Elena raising the young dragon high with both hands, the creature spreading leathery wings and unleashing a roaring torrent of sapphire and golden dragon fire directly towards the camera, illuminating the mother's ecstatic weeping face, majestic, cinematic masterpiece, 8k",
+      "on_screen_text": "ELENA: جاگو میرے بچے... ان پر اپنی آگ برسا دو!",
+      "is_hook_clip": false
+    },
+    {
+      "speaker": "Elena (Mother)",
+      "voice_gender": "female",
+      "narration": "تم نے راکھ کی بات کی تھی نا، بورس؟ اب دیکھو تمہاری سلطنت کیسے راکھ کے سمندر میں ڈوبتی ہے۔",
+      "image_prompt": "Haunting wide silhouette finale shot: Elena walking slowly through the smoking burning ruins of the courtyard with the young dragon perched proudly on her shoulder, smoke billowing into the stormy night sky, embers drifting like stars, cinematic color grading, Guillermo del Toro aesthetic, 8k",
+      "on_screen_text": "ELENA: اب دیکھو تمہاری سلطنت کیسے راکھ میں ڈوبتی ہے...",
+      "is_hook_clip": false
+    }
+  ]
+}
