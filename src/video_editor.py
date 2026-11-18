@@ -45,18 +45,25 @@ def render_scene_clip(
     font = font_path or Config.FONT_PATH
 
     total_frames = max(fps, int(round(duration * fps)))
+    is_video = str(image_path).lower().endswith(".mp4")
 
-    # Alternating Ken Burns zoom: odd scenes zoom in, even scenes zoom out
-    if scene_index % 2 == 1:
-        zoom_expr = f"1.0+0.15*(on/{total_frames})"
+    if is_video:
+        filter_chain = [
+            f"scale={width}:{height}:force_original_aspect_ratio=increase",
+            f"crop={width}:{height}",
+        ]
     else:
-        zoom_expr = f"1.15-0.15*(on/{total_frames})"
+        # Alternating Ken Burns zoom: odd scenes zoom in, even scenes zoom out
+        if scene_index % 2 == 1:
+            zoom_expr = f"1.0+0.15*(on/{total_frames})"
+        else:
+            zoom_expr = f"1.15-0.15*(on/{total_frames})"
 
-    filter_chain = [
-        f"scale={width*2}:{height*2}:force_original_aspect_ratio=increase",
-        f"crop={width*2}:{height*2}",
-        f"zoompan=z='{zoom_expr}':d={total_frames}:x='(iw-iw/zoom)/2':y='ih-ih/zoom':s={width}x{height}:fps={fps}",
-    ]
+        filter_chain = [
+            f"scale={width*2}:{height*2}:force_original_aspect_ratio=increase",
+            f"crop={width*2}:{height*2}",
+            f"zoompan=z='{zoom_expr}':d={total_frames}:x='(iw-iw/zoom)/2':y='ih-ih/zoom':s={width}x{height}:fps={fps}",
+        ]
 
     # Lower-third text overlay
     if on_screen_text and on_screen_text.strip():
@@ -74,22 +81,24 @@ def render_scene_clip(
 
     video_filters = ",".join(filter_chain)
 
-    cmd = [
-        binary,
-        "-y",
-        "-loop", "1",
-        "-t", f"{duration:.3f}",
-        "-i", str(image_path),
-        "-i", str(audio_path),
-        "-vf", video_filters,
-        "-c:v", "libx264",
-        "-pix_fmt", "yuv420p",
-        "-preset", "veryfast",
-        "-c:a", "aac",
-        "-b:a", "192k",
-        "-shortest",
-        str(output_path),
-    ]
+    loop_flag = ["-stream_loop", "-1"] if is_video else ["-loop", "1"]
+    cmd = (
+        [binary, "-y"]
+        + loop_flag
+        + [
+            "-t", f"{duration:.3f}",
+            "-i", str(image_path),
+            "-i", str(audio_path),
+            "-vf", video_filters,
+            "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
+            "-preset", "veryfast",
+            "-c:a", "aac",
+            "-b:a", "192k",
+            "-shortest",
+            str(output_path),
+        ]
+    )
 
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if result.returncode != 0:
@@ -149,24 +158,28 @@ def render_teaser_scene_clip(
 
     filter_complex = ";".join(filter_parts) + ";" + final_filter
 
-    cmd = [
-        binary,
-        "-y",
-        "-loop", "1",
-        "-t", f"{duration:.3f}",
-        "-i", str(image_path),
-        "-i", str(audio_path),
-        "-filter_complex", filter_complex,
-        "-map", "[vout]",
-        "-map", "1:a",
-        "-c:v", "libx264",
-        "-pix_fmt", "yuv420p",
-        "-preset", "veryfast",
-        "-c:a", "aac",
-        "-b:a", "192k",
-        "-shortest",
-        str(output_path),
-    ]
+    is_video = str(image_path).lower().endswith(".mp4")
+    loop_flag = ["-stream_loop", "-1"] if is_video else ["-loop", "1"]
+
+    cmd = (
+        [binary, "-y"]
+        + loop_flag
+        + [
+            "-t", f"{duration:.3f}",
+            "-i", str(image_path),
+            "-i", str(audio_path),
+            "-filter_complex", filter_complex,
+            "-map", "[vout]",
+            "-map", "1:a",
+            "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
+            "-preset", "veryfast",
+            "-c:a", "aac",
+            "-b:a", "192k",
+            "-shortest",
+            str(output_path),
+        ]
+    )
 
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if result.returncode != 0:

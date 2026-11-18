@@ -119,6 +119,18 @@ class Config:
     VOICE_RATE: str = os.getenv("VOICE_RATE", "-5%").strip()
     VOICE_PITCH: str = os.getenv("VOICE_PITCH", "-2Hz").strip()
 
+    # Video & Movie Production Modes:
+    # 1. 'documentary' : 100% Free - Pollinations.ai 1080p images + Ken Burns motion + Edge-TTS (Runs on all PCs & GitHub Actions)
+    # 2. 'cloud_movie' : Cloud AI Video Engine - Generates moving MP4 clips via Fal.ai / Replicate (Runs on Mac, T480s, Cloud)
+    # 3. 'local_movie' : Local M4 / GPU Diffusion - Runs open-weights video models on Apple Silicon MPS or NVIDIA CUDA
+    VIDEO_MODE: str = os.getenv("VIDEO_MODE", "documentary").strip().lower()
+    GENRE: str = os.getenv("GENRE", "documentary").strip().lower()
+
+    # Cloud AI Video Engine Keys (Optional for 'cloud_movie' mode)
+    FAL_KEY: str = os.getenv("FAL_KEY", "").strip()
+    REPLICATE_API_TOKEN: str = os.getenv("REPLICATE_API_TOKEN", "").strip()
+    LOCAL_VIDEO_DEVICE: str = os.getenv("LOCAL_VIDEO_DEVICE", "auto").strip().lower()
+
     # Video Settings
     VIDEO_WIDTH: int = int(os.getenv("VIDEO_WIDTH", "1920"))
     VIDEO_HEIGHT: int = int(os.getenv("VIDEO_HEIGHT", "1080"))

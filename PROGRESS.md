@@ -57,7 +57,8 @@ We have built an enterprise-grade, **100% Free, End-to-End Automated Documentary
 | `src/video_editor.py` | ✅ Complete | FFmpeg dual renderer: creates 16:9 `main_video.mp4` and 9:16 vertical `teaser_short.mp4`. |
 | `src/uploader.py` | ✅ Complete | YouTube Data API v3 uploader for both Long-form videos and YouTube Shorts, with resumable chunked upload. |
 | `src/marketing.py` | ✅ Complete | Multi-platform distribution engine: YouTube pinned comments, Facebook Pages, X (Twitter) threads, and Telegram broadcasts. |
-| `main.py` | ✅ Complete | Central CLI orchestrator connecting all modules with flags: `--dry-run`, `--live`, `--hunt-trends`, `--optimize-ab`. |
+| `src/video_generator_ai.py` | ✅ Complete | **Triple-Engine Video Generator:** Hardware detection, Cloud AI Video (`cloud_movie` via Fal.ai/Replicate), and Local Apple Silicon M4 GPU diffusion (`local_movie`). |
+| `main.py` | ✅ Complete | Central CLI orchestrator connecting all modules with flags: `--dry-run`, `--live`, `--mode`, `--genre`, `--hunt-trends`, `--optimize-ab`. |
 | `hunt_trends.py` | ✅ Complete | Standalone 1-line CLI runner for Module A (Trend Hunter). |
 | `optimize_ab.py` | ✅ Complete | Standalone 1-line CLI runner for Module B (A/B Optimizer). |
 | `data/published_videos.json` | ✅ Complete | Local state file tracking uploaded video IDs, variant metadata, and swap history. |
@@ -180,3 +181,36 @@ Jab FFmpeg installed hoga, tab `python main.py --dry-run` chalane se:
 1. `main_video.mp4` (~15–30 MB, 1080p Full HD, Ken Burns zoom animation, Urdu subtitles, background ambient sound).
 2. `teaser_short.mp4` (~8–15 MB, 1080x1920 vertical layout with blurred background and CTA banners).
 3. Saath mein teeno thumbnails (`thumbnail_a.jpg`, `thumbnail_b.jpg`, `thumbnail_c.jpg`) aur metadata mukammal taur par ban kar ready honge.
+
+---
+
+### 6. 🎬 Triple Production Engines & Hardware Guide (Mac mini M4 vs Lenovo ThinkPad T480s)
+
+The pipeline now natively supports **3 production engines** and **2 storytelling genres**:
+
+#### Hardware Compatibility Matrix:
+| Production Mode | Mac mini M4 (Apple Silicon) | Lenovo ThinkPad T480s (Intel UHD) | GitHub Actions Cloud |
+| :--- | :---: | :---: | :---: |
+| **1. `--mode documentary`** | ✅ 100% Supported | ✅ 100% Supported | ✅ 100% Supported |
+| **2. `--mode cloud_movie`** | ✅ 100% Supported | ✅ 100% Supported | ✅ 100% Supported |
+| **3. `--mode local_movie`** | ✅ Metal / MPS GPU | 🛡️ Auto-Protected (Routes to Cloud/Motion) | 🛡️ Auto-Protected |
+
+#### How to Run Each Mode:
+
+##### Mode 1: 100% Free Documentary (Default):
+```bash
+python main.py --topic "The Secrets of the Bermuda Triangle" --duration 4 --lang urdu --mode documentary --dry-run
+```
+*Best for:* Factual investigative mysteries, historical events, 100% free daily YouTube channel automation.
+
+##### Mode 2: Cinematic Film Story (Cloud AI Video Engine):
+```bash
+python main.py --topic "She Gave Birth to a Dragon: The Mother's Monster" --duration 5 --lang urdu --genre film --mode cloud_movie --dry-run
+```
+*Best for:* Viral dark fantasy, cinematic mythology films, character-driven fiction. Uses Cloud Video APIs (Fal.ai / Replicate) or dynamic camera motion. Perfect for both Mac mini M4 and Lenovo ThinkPad T480s.
+
+##### Mode 3: Local Apple Silicon M4 Video Diffusion:
+```bash
+python main.py --topic "The Cursed Village in the Mist" --duration 2 --lang urdu --genre film --mode local_movie --dry-run
+```
+*Best for:* Offline video generation leveraging the Mac mini M4's 10-core GPU (Metal / MPS). If run on the ThinkPad T480s, the hardware detector automatically prevents system freezing and switches to safe processing.

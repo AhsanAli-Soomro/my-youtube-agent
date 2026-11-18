@@ -98,15 +98,16 @@ def _clean_json_response(raw_text: str) -> str:
     return text.strip()
 
 
-def build_system_prompt(language: str, target_scenes: int) -> str:
-    """Construct a documentary director system prompt."""
+def build_system_prompt(language: str, target_scenes: int, genre: str = "documentary") -> str:
+    """Construct a documentary or cinematic film director system prompt."""
     lang_instruction = ""
     if language == "urdu":
         lang_instruction = (
             "LANGUAGE REQUIREMENT (CRITICAL): The `narration` field of every scene MUST be written in "
             "standard, natural spoken Urdu script (اردو رسم الخط - Nastaliq/Naskh characters). "
             "Do NOT write romanized Urdu. Ensure proper sentence flow and punctuation for Edge-TTS (`ur-PK-AsadNeural`). "
-            "Use deep, suspenseful, vocabulary reminiscent of elite mystery documentary channels like 'Info with Ahsan'. "
+            "Use deep, suspenseful vocabulary reminiscent of elite mystery documentary channels like 'Info with Ahsan' "
+            "or dramatic cinematic storytelling. "
             "Keep `image_prompt`, `title`, `description`, `tags`, and `thumbnail_prompt` in English or bilingual for best SEO."
         )
     elif language == "hindi":
@@ -119,13 +120,32 @@ def build_system_prompt(language: str, target_scenes: int) -> str:
     else:
         lang_instruction = (
             "LANGUAGE REQUIREMENT: The `narration` field must be written in dramatic, suspenseful English "
-            "matching Vox and MagnatesMedia investigative documentary storytelling."
+            "matching Vox and MagnatesMedia investigative documentary storytelling or cinematic feature film dialogue."
         )
 
-    return f"""You are an elite Senior Investigative Documentary Director and Scriptwriter (style: 'Info with Ahsan', 'Vox', 'MagnatesMedia', and 'Fern').
-Your goal is to transform any topic into an ultra-high-retention, suspenseful visual documentary video.
+    if genre in ("film", "story", "movie"):
+        role_description = (
+            "You are an elite Hollywood Dark Fantasy & Cinematic Story Film Director (style: Guillermo del Toro, Denis Villeneuve, and 'Tales of the Underworld').\n"
+            "Your goal is to transform the premise into an emotionally gripping, suspenseful fictional cinematic narrative film with character arcs, dialogue, visceral world-building, and high-retention pacing."
+        )
+        structure_guidelines = f"""
+CINEMATIC FILM STRUCTURE & PACING:
+1. Target Scene Count: Exactly {target_scenes} scenes (~6 to 8 seconds of narration or character dialogue per scene).
+2. ACT 1 - The Inciting Incident & Secret (Scenes 1 to {int(target_scenes * 0.3)}): Establish the tragic protagonist, the ancient curse, or the forbidden ritual, ending with the terrifying birth or discovery.
+3. ACT 2 - The Rising Horror & Maternal Bond (Scenes {int(target_scenes * 0.3) + 1} to {int(target_scenes * 0.7)}): The creature grows, the mother tries desperately to protect it from the suspicious villagers or hunters, and tension escalates.
+4. ACT 3 - The Climax & Final Sacrifice (Scenes {int(target_scenes * 0.7) + 1} to {target_scenes}): The confrontation erupts. Flames, heartbreak, blood, and a deeply emotional twist ending that haunts the viewer.
 
-STRUCTURE & PACING GUIDELINES:
+VISUAL PROMPT GUIDELINES (`image_prompt`):
+- Describe dynamic cinematography for video generation (e.g. 'Tracking dolly shot, close-up of mother's tearful face, tiny dragon with glowing obsidian scales curled in her arms breathing blue flame, dark fantasy chiaroscuro lighting, 8k, photorealistic').
+- Keep visual consistency across character descriptions throughout the film.
+"""
+    else:
+        role_description = (
+            "You are an elite Senior Investigative Documentary Director and Scriptwriter (style: 'Info with Ahsan', 'Vox', 'MagnatesMedia', and 'Fern').\n"
+            "Your goal is to transform any topic into an ultra-high-retention, suspenseful visual documentary video."
+        )
+        structure_guidelines = f"""
+DOCUMENTARY STRUCTURE & PACING GUIDELINES:
 1. Target Scene Count: Exactly {target_scenes} scenes (~5 to 8 seconds of narration per scene).
 2. The Hook (Scene 1): Immediate intrigue within the first 3-5 seconds. Never start with "Welcome back" or generic intros. Start right in the middle of the tension or shocking mystery.
 3. The Build-up (Scenes 2 to {int(target_scenes * 0.4)}): Present the historical context, the eerie silence before the event, the key figures, and the chilling anomalies.
@@ -136,6 +156,11 @@ VISUAL PROMPT GUIDELINES (`image_prompt`):
 - Each image prompt MUST be in English.
 - Describe cinematic framing, dramatic chiaroscuro / volumetric lighting, 35mm documentary film grain, dark moody atmospheric tones, hyper-realistic details, and historical or forensic archive aesthetic.
 - Specify: "16:9 wide shot, dark moody documentary style, cinematic volumetric lighting, 8k, photorealistic, no text, no watermark".
+"""
+
+    return f"""{role_description}
+
+{structure_guidelines}
 
 {lang_instruction}
 
@@ -192,10 +217,11 @@ def generate_documentary_script(
     topic: str,
     duration_minutes: int = 2,
     language: str = "urdu",
+    genre: str = "documentary",
     api_key: Optional[str] = None,
     model_name: Optional[str] = None,
 ) -> DocumentaryScript:
-    """Generate a complete documentary script and scene breakdown using Gemini API."""
+    """Generate a complete documentary or cinematic film script using Gemini API."""
     key = api_key or Config.GEMINI_API_KEY
     model = model_name or Config.GEMINI_MODEL
 
@@ -207,17 +233,19 @@ def generate_documentary_script(
 
     # Calculate target scenes: roughly 9-10 scenes per minute (6 seconds average per scene)
     target_scenes = max(4, int(duration_minutes * 9))
-    system_prompt = build_system_prompt(language=language, target_scenes=target_scenes)
+    system_prompt = build_system_prompt(language=language, target_scenes=target_scenes, genre=genre)
 
+    label = "Film Story" if genre in ("film", "story", "movie") else "Documentary"
     user_prompt = (
-        f"Topic: '{topic}'\n"
+        f"Format: {label}\n"
+        f"Topic / Premise: '{topic}'\n"
         f"Target Duration: {duration_minutes} minute(s)\n"
         f"Target Scene Count: {target_scenes} scenes\n"
         f"Language: {language}\n\n"
         "Generate the complete JSON response now."
     )
 
-    logger.info(f"Requesting documentary script from Gemini ({model}) for topic: '{topic}'...")
+    logger.info(f"Requesting {label} script from Gemini ({model}) for topic: '{topic}'...")
 
     raw_response_text = ""
 

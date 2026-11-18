@@ -35,6 +35,11 @@ from src.uploader import upload_video_to_youtube, upload_teaser_short_to_youtube
 from src.marketing import run_marketing_campaign
 from src.trend_hunter import run_trend_hunter
 from src.ab_optimizer import register_published_video, optimize_all_published_videos
+from src.video_generator_ai import (
+    detect_hardware,
+    generate_cloud_movie_clip,
+    generate_local_movie_clip,
+)
 
 
 def print_banner():
@@ -51,6 +56,8 @@ def run_pipeline(
     topic_override: str = None,
     duration_minutes: int = 2,
     language: str = "urdu",
+    video_mode: str = None,
+    genre: str = None,
     dry_run: bool = True,
     custom_output_dir: Path = None,
     skip_upload: bool = False,
@@ -58,6 +65,10 @@ def run_pipeline(
 ):
     start_time = time.time()
     print_banner()
+
+    v_mode = (video_mode or Config.VIDEO_MODE or "documentary").lower()
+    v_genre = (genre or Config.GENRE or "documentary").lower()
+    hw = detect_hardware()
 
     # Pre-flight validation
     logger.info("🔍 Running pre-flight configuration checks...")
@@ -89,19 +100,22 @@ def run_pipeline(
     logger.info(f"🎯 Selected Topic:   '{topic}'")
     logger.info(f"⏱️  Target Duration:  {duration_minutes} minute(s)")
     logger.info(f"🌐 Language:         {language.upper()}")
+    logger.info(f"🎭 Production Genre: {v_genre.upper()}")
+    logger.info(f"🎬 Video Engine:     {v_mode.upper()} (Host: {hw['tier']})")
     logger.info(f"⚙️  Dry Run Mode:     {dry_run}")
 
     # =========================================================================
     # STEP 1: Script, SEO & Marketing Copy (Google Gemini Free API)
     # =========================================================================
     print("\n" + "=" * 65)
-    print("📜 STEP 1: Generating Script, SEO & Social Marketing Copy (Gemini)...")
+    print(f"📜 STEP 1: Generating Script, SEO & Social Marketing Copy ({v_genre.upper()})...")
     print("=" * 65)
 
     script: DocumentaryScript = generate_documentary_script(
         topic=topic,
         duration_minutes=duration_minutes,
         language=language,
+        genre=v_genre,
     )
 
     metadata_file = project_dir / "metadata.json"
@@ -217,16 +231,42 @@ def run_pipeline(
     print("=" * 65)
 
     # 5A: Main 16:9 Video
-    print("🎥 Rendering Main 16:9 Long-Form Documentary Video...")
     all_scene_items = []
     hook_scene_items = []
+    movie_clips_dir = project_dir / "movie_clips"
 
+    if v_mode in ("cloud_movie", "local_movie"):
+        movie_clips_dir.mkdir(parents=True, exist_ok=True)
+        print(f"\n🎬 [AI Video Generation: {v_mode.upper()}] Synthesizing moving video clips...")
+        for i, scene in enumerate(script.scenes):
+            idx = i + 1
+            clip_file = movie_clips_dir / f"scene_{idx:03d}.mp4"
+            ref_img = images_dir / f"scene_{idx:03d}.jpg"
+            dur = audio_results[i][2]
+            print(f"  • Generating clip {idx:03d}/{len(script.scenes):03d} ({dur:.1f}s)...")
+
+            if v_mode == "cloud_movie":
+                generate_cloud_movie_clip(
+                    prompt=scene.image_prompt,
+                    output_path=clip_file,
+                    image_path=ref_img,
+                    duration_seconds=int(round(dur)),
+                )
+            else:
+                generate_local_movie_clip(
+                    prompt=scene.image_prompt,
+                    output_path=clip_file,
+                    image_path=ref_img,
+                    duration_seconds=int(round(dur)),
+                )
+
+    print("\n🎥 Rendering Main 16:9 Master Video...")
     for i, scene in enumerate(script.scenes):
         idx = i + 1
-        img_p = images_dir / f"scene_{idx:03d}.jpg"
+        visual_p = (movie_clips_dir / f"scene_{idx:03d}.mp4") if v_mode in ("cloud_movie", "local_movie") else (images_dir / f"scene_{idx:03d}.jpg")
         aud_p = audio_dir / f"scene_{idx:03d}.mp3"
         dur = audio_results[i][2]
-        item = (idx, img_p, aud_p, dur, scene.on_screen_text)
+        item = (idx, visual_p, aud_p, dur, scene.on_screen_text)
         all_scene_items.append(item)
 
         if scene.is_hook_clip:
@@ -386,6 +426,22 @@ def parse_arguments():
         help="Narration language",
     )
     parser.add_argument(
+        "--mode",
+        dest="video_mode",
+        type=str,
+        choices=["documentary", "cloud_movie", "local_movie"],
+        default=Config.VIDEO_MODE,
+        help="Video production engine: 'documentary' (100%% free images+zoom), 'cloud_movie' (Fal.ai/Replicate AI video clips), or 'local_movie' (M4 Mac GPU diffusion)",
+    )
+    parser.add_argument(
+        "--genre",
+        dest="genre",
+        type=str,
+        choices=["documentary", "film", "story"],
+        default=Config.GENRE,
+        help="Story genre: 'documentary' (investigative real mystery) or 'film' / 'story' (fictional cinematic narrative)",
+    )
+    parser.add_argument(
         "--dry-run",
         dest="dry_run",
         action="store_true",
@@ -445,6 +501,8 @@ if __name__ == "__main__":
         topic_override=args.topic,
         duration_minutes=args.duration,
         language=args.language,
+        video_mode=args.video_mode,
+        genre=args.genre,
         dry_run=args.dry_run,
         custom_output_dir=custom_out,
         skip_upload=args.skip_upload,
